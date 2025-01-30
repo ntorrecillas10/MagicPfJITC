@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondo_turquesa_negro"
+    tools:context=".LoginActivity">
+
+    <ImageView
+        android:id="@+id/icono_login"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/logo_magic_jitc"
+        android:padding="10dp"
+        android:scaleType="fitCenter"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/correo_login"/>
+
+    <EditText
+        android:id="@+id/correo_login"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:hint="Correo electrónico"
+        android:textColor="@color/white"
+        android:textColorHint="@color/gris_neutro"
+        android:background="@drawable/edit_fondo_negro_cian"
+
+        app:layout_constraintTop_toBottomOf="@id/icono_login"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/pass_login"/>
+
+    <EditText
+        android:id="@+id/pass_login"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:hint="Contraseña"
+        android:textColor="@color/white"
+        android:textColorHint="@color/gris_neutro"
+        android:background="@drawable/edit_fondo_negro_cian"
+
+        app:layout_constraintTop_toBottomOf="@id/correo_login"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/boton_login"
+        />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/boton_login"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="Entrar"
+        android:textColor="@color/white"
+        android:shadowColor="@color/black"
+        android:shadowDx="2"
+        android:shadowRadius="2"
+        android:shadowDy="2"
+        android:background="@drawable/fondo_boton_verde_cian"
+        app:layout_constraintTop_toBottomOf="@id/pass_login"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
