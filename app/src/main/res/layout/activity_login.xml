@@ -8,64 +8,112 @@
     android:background="@drawable/fondo_turquesa_negro"
     tools:context=".LoginActivity">
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVmedio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+
     <ImageView
         android:id="@+id/icono_login"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/logo_magic_jitc"
-        android:padding="10dp"
+        android:padding="30dp"
         android:scaleType="fitCenter"
+        android:src="@drawable/logo_magic_jitc"
 
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/correo_login"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/correo_login"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_weight="3" />
 
     <EditText
         android:id="@+id/correo_login"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/edit_fondo_negro_cian"
         android:hint="Correo electrónico"
         android:textColor="@color/white"
+        android:paddingStart="10dp"
         android:textColorHint="@color/gris_neutro"
-        android:background="@drawable/edit_fondo_negro_cian"
 
-        app:layout_constraintTop_toBottomOf="@id/icono_login"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/pass_login"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/pass_login"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/icono_login"
+        app:layout_constraintVertical_weight="1" />
 
     <EditText
         android:id="@+id/pass_login"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="@drawable/edit_fondo_negro_cian"
+        android:layout_marginHorizontal="20dp"
+        android:paddingStart="10dp"
         android:hint="Contraseña"
         android:textColor="@color/white"
         android:textColorHint="@color/gris_neutro"
-        android:background="@drawable/edit_fondo_negro_cian"
 
-        app:layout_constraintTop_toBottomOf="@id/correo_login"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/pass_olvidada"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/correo_login"
+        app:layout_constraintVertical_weight="1"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/pass_olvidada"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="¿Ha olvidado su contraseña?"
+        android:textSize="10dp"
+        android:paddingTop="5dp"
+        android:gravity="top|start"
+        android:background="#00000000"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toTopOf="@id/boton_login"
-        />
+        app:layout_constraintEnd_toStartOf="@id/guidelineVmedio"
+        app:layout_constraintStart_toStartOf="@id/pass_login"
+        app:layout_constraintTop_toBottomOf="@id/pass_login"
+        app:layout_constraintVertical_weight="1"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/boton_login"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="Entrar"
-        android:textColor="@color/white"
+        android:background="@drawable/fondo_boton_verde_cian"
         android:shadowColor="@color/black"
         android:shadowDx="2"
-        android:shadowRadius="2"
         android:shadowDy="2"
-        android:background="@drawable/fondo_boton_verde_cian"
-        app:layout_constraintTop_toBottomOf="@id/pass_login"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:shadowRadius="2"
+        android:text="Entrar"
+        android:textSize="20dp"
+        android:layout_marginHorizontal="20dp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/crear_usuario_boton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pass_olvidada"
+        app:layout_constraintVertical_weight="1" />
 
-
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/crear_usuario_boton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Crear cuenta"
+        android:padding="4dp"
+        android:textSize="15dp"
+        android:gravity="center"
+        android:background="@drawable/fondo_transparente_bordes_blancos"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/boton_login"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_weight="1"
+        android:layout_marginBottom="40dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
