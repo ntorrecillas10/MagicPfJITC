@@ -1,14 +1,16 @@
 package com.example.magicpfjitc
 
 import android.icu.text.SimpleDateFormat
-import java.io.Serializable
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.util.Date
 import java.util.Locale
 
 
 val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-class Usuario(
+@Parcelize
+data class Usuario(
     var id: String = "",
     var usuario: String = "",
     var correo: String = "",
@@ -16,5 +18,5 @@ class Usuario(
     var foto: String = "",
     var fecha: String = dateFormat.format(Date()),
     var admin: Boolean = false
-): Serializable
+): Parcelable
 
