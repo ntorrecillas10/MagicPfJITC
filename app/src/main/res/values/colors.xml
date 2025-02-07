@@ -5,12 +5,13 @@
     <color name="rojo_coral">#FFE3414E</color>
     <color name="rosa_fucsia">#FFF55281</color>
     <color name="azul_turquesa">#FF1E8A96</color>
+    <color name="azul_oscuro">#FF0A3338</color>
     <color name="verde_esmeralda">#FF228F70</color>
     <color name="naranja_cálido">#FFFF8A40</color>
     <color name="amarillo_dorado">#FFFFC72C</color>
     <color name="violeta_eléctrico">#FF8A4FFF</color>
     <color name="cian_brillante">#FF5CC8FF</color>
     <color name="verde_lima">#FF7ED957</color>
-    <color name="gris_neutro">#FFD9D9D9</color>
+    <color name="gris_neutro">#979494</color>
     <color name="gris_claro">#D1D1D1</color>
 </resources>
