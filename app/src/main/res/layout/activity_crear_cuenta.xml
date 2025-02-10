@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     android:background="@drawable/fondo_turquesa_negro"
     tools:context=".CrearCuentaActivity">
 
@@ -50,7 +51,7 @@
         app:layout_constraintStart_toEndOf="@id/volver"
         app:layout_constraintBottom_toTopOf="@id/correo_layout_crear"
         app:layout_constraintEnd_toStartOf="@id/logo"
-        app:layout_constraintVertical_weight="1"
+        app:layout_constraintVertical_weight="2"
         app:layout_constraintHorizontal_weight="5"/>
 
     <com.google.android.material.textfield.TextInputLayout

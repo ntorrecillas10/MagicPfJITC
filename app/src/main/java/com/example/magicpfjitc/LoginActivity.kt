@@ -40,6 +40,7 @@ class LoginActivity : AppCompatActivity() {
             if (correo.isNotEmpty() && pass.isNotEmpty()) {
                 if (correo == "admin" && pass == "admin") {
                     val intent = Intent(this, MainActivity::class.java)
+                    intent.putExtra("admin", true)
                     startActivity(intent)
                     finish()
                 } else {

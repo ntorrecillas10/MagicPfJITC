@@ -56,6 +56,8 @@
         android:scrollbars="vertical"
         android:clipToPadding="false"
         android:background="@drawable/edit_fondo_negro_cian"
+        android:padding="5dp"
+        android:layout_margin="5dp"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -63,6 +65,18 @@
         app:layout_constraintBottom_toTopOf="@id/guideline"
 
         app:layout_constraintVertical_weight="30"/>
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btn_flotante"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="5dp"
+        android:background="@drawable/fondo_boton_rojo_cian_flotante"
+        android:scaleType="fitCenter"
+        android:padding="3dp"
+        android:src="@drawable/add_white"
+        app:layout_constraintBottom_toBottomOf="@id/recycler_cartas"
+        app:layout_constraintEnd_toEndOf="@id/recycler_cartas" />
 
 
 

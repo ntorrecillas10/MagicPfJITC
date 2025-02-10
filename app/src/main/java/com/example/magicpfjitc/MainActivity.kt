@@ -3,6 +3,7 @@ package com.example.magicpfjitc
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -27,9 +28,18 @@ class MainActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         Log.d("MainActivity", auth.currentUser?.email.toString())
+        val admin = intent.getBooleanExtra("admin", false)
 
         binding.recyclerCartas.layoutManager = GridLayoutManager(this, 3)
         binding.recyclerCartas.adapter = CartaAdapter(cartasList)
+
+        if (!admin) {
+            binding.btnFlotante.visibility = View.GONE
+        }
+        binding.btnFlotante.setOnClickListener {
+            val intent = Intent(this, CrearCarta::class.java)
+            startActivity(intent)
+        }
 
 
         binding.btn4.setOnClickListener {
