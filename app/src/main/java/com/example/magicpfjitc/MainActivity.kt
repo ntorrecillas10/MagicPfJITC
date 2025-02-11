@@ -21,8 +21,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
+
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
         cartasList = mutableListOf()
 
         auth = FirebaseAuth.getInstance()
@@ -31,7 +40,11 @@ class MainActivity : AppCompatActivity() {
         val admin = intent.getBooleanExtra("admin", false)
 
         binding.recyclerCartas.layoutManager = GridLayoutManager(this, 3)
+        val cartaAdapter = CartaAdapter(cartasList)
         binding.recyclerCartas.adapter = CartaAdapter(cartasList)
+
+        cartaAdapter.notifyDataSetChanged()
+
 
         if (!admin) {
             binding.btnFlotante.visibility = View.GONE

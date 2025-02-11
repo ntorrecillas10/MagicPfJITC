@@ -73,7 +73,7 @@
         android:id="@+id/nombre_carta"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="Nombre"
+        android:hint="Nombre"
 
         app:layout_constraintTop_toBottomOf="@id/add_imagen_carta"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,7 +87,7 @@
         android:id="@+id/precio_carta"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="Precio"
+        android:hint="Precio"
 
         app:layout_constraintTop_toBottomOf="@id/nombre_carta"
         app:layout_constraintEnd_toEndOf="parent"
@@ -100,7 +100,7 @@
         android:id="@+id/descripcion_carta"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="Descripción"
+        android:hint="Descripción"
 
         app:layout_constraintTop_toBottomOf="@id/precio_carta"
         app:layout_constraintEnd_toEndOf="parent"

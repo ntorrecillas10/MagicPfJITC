@@ -7,7 +7,6 @@
                 android:startColor="#FF1E8A96"
                 android:endColor="#FF228F70"
                 android:angle="135"/>
-            <corners android:radius="20dp"/>
         </shape>
     </item>
 
@@ -18,7 +17,6 @@
                 android:startColor="#FF5CC8FF"
                 android:endColor="#FF228F70"
                 android:angle="135"/>
-            <corners android:radius="20dp"/>
         </shape>
     </item>
 </selector>
