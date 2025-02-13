@@ -4,13 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.magicpfjitc.databinding.DialogCartaBinding
 import com.example.magicpfjitc.databinding.ItemCartaBinding
 import io.appwrite.Client
 import io.appwrite.services.Storage
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
-class CartaAdapter(originalList: List<Carta>) : RecyclerView.Adapter<CartaAdapter.CartaViewHolder>() {
+class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: RecyclerView) : RecyclerView.Adapter<CartaAdapter.CartaViewHolder>() {
 
     private var displayedList: List<Carta> = originalList // Lista que se muestra actualmente
 
@@ -53,11 +54,42 @@ class CartaAdapter(originalList: List<Carta>) : RecyclerView.Adapter<CartaAdapte
             .into(holder.binding.iconoCarta)
 
         initializeUI()
+
+        holder.binding.main.setOnClickListener {
+            // Crear el Binding para el diálogo
+            val dialogBinding = DialogCartaBinding.inflate(LayoutInflater.from(holder.itemView.context))
+
+            // Rellenar el contenido del diálogo con la información de la carta
+            dialogBinding.mostrarNombreCarta.text = carta.nombre
+            dialogBinding.mostrarPrecioCarta.text = "Precio: ${carta.precio}"
+            dialogBinding.mostrarDescripcionCarta.text = carta.descripcion  // Asumiendo que la carta tiene un campo 'descripcion'
+
+            // Usar Glide para cargar la imagen de la carta en el ImageView del diálogo
+            Glide.with(holder.itemView.context)
+                .load(carta.imagenUrl)
+                .into(dialogBinding.mostrarImagenCarta)
+
+            // Crear el AlertDialog y establecer el layout inflado con el Binding
+            val builder = android.app.AlertDialog.Builder(holder.itemView.context)
+            builder.setView(dialogBinding.root)
+                .setCancelable(true) // Permite cerrar el diálogo tocando fuera
+
+            // Mostrar el diálogo
+            val dialog = builder.create()
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            dialog.show()
+        }
+
+
     }
 
     override fun getItemCount(): Int = displayedList.size
 
     private fun initializeUI() {
         refBD = FirebaseDatabase.getInstance().reference
+    }
+    fun updateList(newList: List<Carta>) {
+        displayedList = newList
+        notifyDataSetChanged()
     }
 }

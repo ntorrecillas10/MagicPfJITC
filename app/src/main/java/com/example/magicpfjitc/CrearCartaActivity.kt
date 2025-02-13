@@ -10,11 +10,8 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.magicpfjitc.databinding.ActivityCrearCartaBinding
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -28,7 +25,6 @@ import io.appwrite.services.Storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.checkerframework.checker.units.qual.C
 
 
 private lateinit var refBD: DatabaseReference//referencia a la base de datos Firebase
@@ -44,7 +40,7 @@ private lateinit var identificadorAppWrite: String//identificador único para el
 
 
 
-class CrearCarta : AppCompatActivity() {
+class CrearCartaActivity : AppCompatActivity() {
 
     private var contexto = this
     private lateinit var binding: ActivityCrearCartaBinding

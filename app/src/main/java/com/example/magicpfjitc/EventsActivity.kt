@@ -16,29 +16,29 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.magicpfjitc.databinding.ActivityMainBinding
+import com.example.magicpfjitc.databinding.ActivityEventsBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class MainActivity : AppCompatActivity() {
+class EventsActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityEventsBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var cartasList: MutableList<Carta>
-    private lateinit var cartaAdapter: CartaAdapter
+    private lateinit var eventosList: MutableList<Evento>
+    private lateinit var eventoAdapter: EventoAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityEventsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        cartasList = mutableListOf()
-        binding.recyclerCartas.layoutManager = GridLayoutManager(this, 3)
-        cartaAdapter = CartaAdapter(cartasList, binding.recyclerCartas)
-        binding.recyclerCartas.adapter = cartaAdapter
+        eventosList = mutableListOf()
+        binding.recyclerEventos.layoutManager = GridLayoutManager(this, 1)
+        eventoAdapter = EventoAdapter(eventosList, binding.recyclerEventos)
+        binding.recyclerEventos.adapter = eventoAdapter
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        Log.d("MainActivity", auth.currentUser.toString())
+        Log.d("EventActivity", auth.currentUser.toString())
         val currentUserId = auth.currentUser?.uid
 
         if (currentUserId != null) {
@@ -69,20 +69,20 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        Log.e("MainActivity", "Error al obtener el atributo admin", error.toException())
+                        Log.e("EventActivity", "Error al obtener el atributo admin", error.toException())
                     }
                 })
         }
         FirebaseDatabase.getInstance().reference.child("cartas")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    cartasList.clear()  // Limpiar la lista antes de añadir los nuevos datos
+                    eventosList.clear()  // Limpiar la lista antes de añadir los nuevos datos
                     for (cartaSnapshot in snapshot.children) {
-                        val carta = cartaSnapshot.getValue(Carta::class.java)
-                        carta?.let { cartasList.add(it) }
+                        val evento = cartaSnapshot.getValue(Evento::class.java)
+                        evento?.let { eventosList.add(it) }
                     }
-                    Log.d("Hola", cartasList.size.toString())
-                    cartaAdapter.notifyDataSetChanged()  // Notificar que los datos han cambiado
+                    Log.d("Hola", eventosList.size.toString())
+                    eventoAdapter.notifyDataSetChanged()  // Notificar que los datos han cambiado
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -111,47 +111,47 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        val spinner = binding.spinnerFiltros
-        val items = arrayOf("Filtrar lista","Precio menor a mayor", "Precio menor a mayor", "Alfabeticamente", "Por tipo")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,items)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = adapter
-
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            @SuppressLint("UseCompatLoadingForDrawables")
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val selectedItem = parent?.getItemAtPosition(position).toString()
-                when (selectedItem) {
-                    "Filtrar lista" -> cartasList.sortBy { it.fecha_carta }
-                    "Precio menor a mayor" -> cartasList.sortBy { it.precio }
-                    "Precio mayor a menor" -> cartasList.sortByDescending { it.precio }
-                    "Alfabeticamente" -> cartasList.sortBy { it.nombre }
-                    "Por tipo" -> cartasList.sortBy { it.tipo }
-                }
-                cartaAdapter.notifyDataSetChanged()
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                TODO("Not yet implemented")
-            }
-
-
-        }
+//        val spinner = binding.spinnerFiltros
+//        val items = arrayOf("Filtrar lista","Precio menor a mayor", "Precio menor a mayor", "Alfabeticamente", "Por tipo")
+//        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,items)
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        spinner.adapter = adapter
+//
+//        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            @SuppressLint("UseCompatLoadingForDrawables")
+//            override fun onItemSelected(
+//                parent: AdapterView<*>?,
+//                view: View?,
+//                position: Int,
+//                id: Long
+//            ) {
+//                val selectedItem = parent?.getItemAtPosition(position).toString()
+//                when (selectedItem) {
+//                    "Filtrar lista" -> eventosList.sortBy { it.fecha_carta }
+//                    "Precio menor a mayor" -> cartasList.sortBy { it.precio }
+//                    "Precio mayor a menor" -> cartasList.sortByDescending { it.precio }
+//                    "Alfabeticamente" -> cartasList.sortBy { it.nombre }
+//                    "Por tipo" -> cartasList.sortBy { it.tipo }
+//                }
+//                cartaAdapter.notifyDataSetChanged()
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                TODO("Not yet implemented")
+//            }
+//
+//
+//        }
 
         binding.textoSuperior.doOnTextChanged { text, _, _, _ ->
             val filteredList = if (text.isNullOrEmpty()) {
-                cartasList // Restauramos la lista completa
+                eventosList // Restauramos la lista completa
             } else {
-                cartasList.filter { carta ->
-                    carta.nombre.contains(text.toString(), ignoreCase = true)
+                eventosList.filter { evento ->
+                    evento.nombre.contains(text.toString(), ignoreCase = true)
                 }
             }
-            cartaAdapter.updateList(filteredList) // Actualizamos la lista mostrada
+            eventoAdapter.updateList(filteredList) // Actualizamos la lista mostrada
         }
 
 
@@ -194,7 +194,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        cartaAdapter.notifyDataSetChanged()
+        eventoAdapter.notifyDataSetChanged()
 
 
     }

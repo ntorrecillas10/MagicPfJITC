@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/fondo_aazuloscuro_gris"
+        tools:context=".MainActivity">
+
+        <ImageView
+            android:id="@+id/logo_movimiento"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/logo_magic_jitc"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/textoSuperior"
+
+            app:layout_constraintVertical_weight="1"/>
+
+        <ImageButton
+            android:id="@+id/fragment"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/list_black"
+            android:scaleType="fitCenter"
+            android:padding="3dp"
+            android:background="#00000000"
+            app:layout_constraintTop_toTopOf="@id/textoSuperior"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/textoSuperior"
+            app:layout_constraintEnd_toStartOf="@id/textoSuperior"
+            app:layout_constraintHorizontal_weight="3"/>
+
+        <EditText
+            android:id="@+id/textoSuperior"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:hint="Buscar"
+            android:paddingHorizontal="20dp"
+            android:layout_marginHorizontal="10dp"
+
+            app:layout_constraintBottom_toTopOf="@id/spinner_filtros"
+            app:layout_constraintEnd_toStartOf="@id/btn_buscar"
+            app:layout_constraintStart_toEndOf="@id/fragment"
+            app:layout_constraintTop_toBottomOf="@id/logo_movimiento"
+
+            app:layout_constraintVertical_weight="2"
+            app:layout_constraintHorizontal_weight="15"/>
+
+        <ImageButton
+            android:id="@+id/btn_buscar"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/transparente"
+            android:src="@drawable/search_black"
+            android:layout_marginHorizontal="20dp"
+
+            app:layout_constraintBottom_toBottomOf="@id/textoSuperior"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/textoSuperior"
+            app:layout_constraintTop_toTopOf="@id/textoSuperior"
+
+            app:layout_constraintHorizontal_weight="2"/>
+
+        <Spinner
+            android:id="@+id/spinner_filtros"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/textoSuperior"
+            app:layout_constraintBottom_toTopOf="@id/recycler_eventos"
+            app:layout_constraintEnd_toEndOf="@id/recycler_eventos"
+            app:layout_constraintStart_toStartOf="@id/recycler_eventos"/>
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_eventos"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            tools:listitem="@layout/item_evento"
+            android:scrollbars="vertical"
+            android:clipToPadding="false"
+            android:background="@drawable/edit_fondo_negro_cian"
+            android:padding="5dp"
+            android:layout_marginTop="10dp"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spinner_filtros"
+            app:layout_constraintBottom_toTopOf="@id/guideline"
+
+            app:layout_constraintVertical_weight="30"/>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn_flotante"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/fondo_boton_rojo_cian_flotante"
+            android:scaleType="fitCenter"
+            android:padding="10dp"
+            android:src="@drawable/add_white"
+            app:layout_constraintBottom_toBottomOf="@id/recycler_eventos"
+            app:layout_constraintEnd_toEndOf="@id/recycler_eventos" />
+
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.92" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/fondo_boton_verde_cian"
+            android:src="@drawable/perfil_usuario_icon"
+            android:scaleType="fitCenter"
+            android:padding="10dp"
+
+            app:layout_constraintTop_toTopOf="@id/guideline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn2"/>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/fondo_boton_verde_cian_pulsado"
+            android:src="@drawable/amigos_icon"
+            android:scaleType="fitCenter"
+            android:padding="10dp"
+
+            app:layout_constraintTop_toTopOf="@id/guideline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn1"
+            app:layout_constraintEnd_toStartOf="@id/btn3"/>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn3"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/fondo_boton_verde_cian"
+            android:src="@drawable/carrito_icon"
+            android:scaleType="fitCenter"
+            android:padding="10dp"
+
+            app:layout_constraintTop_toTopOf="@id/guideline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn2"
+            app:layout_constraintEnd_toStartOf="@id/btn4"/>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn4"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/fondo_boton_verde_cian"
+            android:src="@drawable/setting_icon"
+            android:scaleType="fitCenter"
+            android:padding="10dp"
+
+            app:layout_constraintTop_toTopOf="@id/guideline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn3"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Menú lateral -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@android:color/white"
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/nav_menu" />
+</androidx.drawerlayout.widget.DrawerLayout>

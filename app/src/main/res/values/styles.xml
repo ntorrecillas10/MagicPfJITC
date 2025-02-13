@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@drawable/fondo_transparente_bordes_negro</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+</resources>
