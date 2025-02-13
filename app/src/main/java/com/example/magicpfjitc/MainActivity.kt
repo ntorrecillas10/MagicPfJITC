@@ -1,10 +1,13 @@
 package com.example.magicpfjitc
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -110,6 +113,38 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
+
+        val spinner = binding.spinnerFiltros
+        val items = arrayOf("Precio menor a mayor", "Precio menor a mayor", "Alfabeticamente", "Por tipo")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,items)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            @SuppressLint("UseCompatLoadingForDrawables")
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val selectedItem = parent?.getItemAtPosition(position).toString()
+                when (selectedItem) {
+                    "Precio menor a mayor" -> cartasList.sortBy { it.precio }
+                    "Precio mayor a menor" -> cartasList.sortByDescending { it.precio }
+                    "Alfabeticamente" -> cartasList.sortBy { it.nombre }
+                    "Por tipo" -> cartasList.sortBy { it.tipo }
+                }
+                cartaAdapter.notifyDataSetChanged()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+
+
+        }
+
 
         binding.btnFlotante.setOnClickListener {
             val intent = Intent(this, CrearCarta::class.java)
