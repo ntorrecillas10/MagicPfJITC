@@ -28,12 +28,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var cartasList: MutableList<Carta>
+    private lateinit var cartaAdapter: CartaAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        cartasList = mutableListOf()
+        binding.recyclerCartas.layoutManager = GridLayoutManager(this, 3)
+        cartaAdapter = CartaAdapter(cartasList)
+        binding.recyclerCartas.adapter = cartaAdapter
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -41,7 +46,6 @@ class MainActivity : AppCompatActivity() {
         }
         //Damos movimiento lateral a la imagen del logo
 
-        cartasList = mutableListOf()
 
         auth = FirebaseAuth.getInstance()
 
@@ -69,19 +73,15 @@ class MainActivity : AppCompatActivity() {
                     }
                 })
         }
-
-        binding.recyclerCartas.layoutManager = GridLayoutManager(this, 3)
-        val cartaAdapter = CartaAdapter(cartasList)
-        binding.recyclerCartas.adapter = cartaAdapter
-
         FirebaseDatabase.getInstance().reference.child("cartas")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
+            .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     cartasList.clear()  // Limpiar la lista antes de añadir los nuevos datos
                     for (cartaSnapshot in snapshot.children) {
                         val carta = cartaSnapshot.getValue(Carta::class.java)
                         carta?.let { cartasList.add(it) }
                     }
+                    Log.d("Hola", cartasList.size.toString())
                     cartaAdapter.notifyDataSetChanged()  // Notificar que los datos han cambiado
                 }
 
@@ -89,7 +89,6 @@ class MainActivity : AppCompatActivity() {
                     Log.e("MainActivity", "Error al obtener las cartas", error.toException())
                 }
             })
-
 
 
         binding.fragment.setOnClickListener {
@@ -142,5 +141,12 @@ class MainActivity : AppCompatActivity() {
         }
         val dialog = builder.create()
         dialog.show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        cartaAdapter.notifyDataSetChanged()
+
+
     }
 }

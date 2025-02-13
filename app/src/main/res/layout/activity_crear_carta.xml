@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondo_rojo_verde"
+    android:background="@color/gris_neutro"
     android:padding="10dp"
     tools:context=".CrearCarta">
 
@@ -64,10 +64,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textoSuperior"
-        app:layout_constraintBottom_toTopOf="@id/nombre_carta"
+        app:layout_constraintBottom_toTopOf="@id/tipo_carta"
 
         app:layout_constraintVertical_weight="6"
         />
+
+    <Spinner
+        android:id="@+id/tipo_carta"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/add_imagen_carta"
+        app:layout_constraintBottom_toTopOf="@id/nombre_carta"
+        app:layout_constraintEnd_toEndOf="@id/nombre_carta"
+        app:layout_constraintStart_toStartOf="@id/nombre_carta"
+        app:layout_constraintVertical_weight="1"/>
 
     <EditText
         android:id="@+id/nombre_carta"
@@ -75,7 +85,7 @@
         android:layout_height="0dp"
         android:hint="Nombre"
 
-        app:layout_constraintTop_toBottomOf="@id/add_imagen_carta"
+        app:layout_constraintTop_toBottomOf="@id/tipo_carta"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/precio_carta"

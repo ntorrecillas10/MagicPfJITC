@@ -31,7 +31,14 @@ class CartaAdapter(originalList: List<Carta>) : RecyclerView.Adapter<CartaAdapte
         val carta = displayedList[position]
         holder.binding.nombreCarta.text = carta.nombre
         holder.binding.precioCarta.text = carta.precio.toString()
-
+        holder.binding.main.background = when (carta.tipo) {
+            "Rojo" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_rojos)
+            "Azul" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_azul)
+            "Negro" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_negro)
+            "Verde" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_verdes)
+            else -> {
+                holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_blancos)}
+        }
         miProyectoId = "67a65b4b001c887a9b81" // ID del proyecto de Appwrite
         miBucketId = "67a783770038c6aa0389" // ID del bucket de Appwrite
 

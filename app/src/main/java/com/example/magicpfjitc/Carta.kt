@@ -6,11 +6,12 @@ import java.util.Date
 
 @Parcelize
 data class Carta(
-    val id: String = "",
-    val nombre: String = "",
-    val imagenUrl: String = "",
-    val precio: Double = 0.0,
-    val descripcion: String = "",
-    val disponible: Boolean = true,
+    var id: String = "",
+    var nombre: String = "",
+    var imagenUrl: String = "",
+    var precio: Double = 0.0,
+    var descripcion: String = "",
+    var tipo: String = "Blanco",
+    var disponible: Boolean = true,
     var fecha_carta: String = dateFormat.format(Date())
 ): Parcelable

@@ -1,10 +1,14 @@
 package com.example.magicpfjitc
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,9 +43,10 @@ private lateinit var miProyectoId: String//id del proyecto de appwrite
 private lateinit var identificadorAppWrite: String//identificador único para el objeto carta en appwrite
 
 
+
 class CrearCarta : AppCompatActivity() {
 
-
+    private var contexto = this
     private lateinit var binding: ActivityCrearCartaBinding
     private lateinit var url: Uri // URL de la imagen seleccionada
 
@@ -75,6 +80,40 @@ class CrearCarta : AppCompatActivity() {
         // Listener para seleccionar una imagen para el avatar
         binding.addImagenCarta.setOnClickListener {
             urlGaleria.launch("image/*") // Abre la galería para seleccionar una imagen
+        }
+
+        //Iniciamos el spinner
+        val spinner = binding.tipoCarta
+        val items = arrayOf("Blanco","Rojo","Azul","Negro","Verde")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,items)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            @SuppressLint("UseCompatLoadingForDrawables")
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val selectedItem = parent?.getItemAtPosition(position).toString()
+                //Hacemos un switch para cambiar el color del fondo de la carta segun lo seleccionado en el Spinner
+                when (selectedItem) {
+                    "Blanco" -> binding.addImagenCarta.background = getDrawable(R.drawable.fondo_transparente_bordes_blancos)
+                    "Rojo" -> binding.addImagenCarta.background = getDrawable(R.drawable.fondo_transparente_bordes_rojos)
+                    "Azul" -> binding.addImagenCarta.background = getDrawable(R.drawable.fondo_transparente_bordes_azul)
+                    "Negro" -> binding.addImagenCarta.background = getDrawable(R.drawable.fondo_transparente_bordes_negro)
+                    "Verde" -> binding.addImagenCarta.background = getDrawable(R.drawable.fondo_transparente_bordes_verdes)
+                }
+                carta_nueva.tipo = selectedItem
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+
+
         }
 
         carta_nueva = Carta()
@@ -143,12 +182,17 @@ class CrearCarta : AppCompatActivity() {
                                 url_avatar,
                                 binding.precioCarta.text.toString().toDouble(),
                                 binding.descripcionCarta.text.toString(),
+                                carta_nueva.tipo
                             )
 
                             Log.d("carta", carta_nueva.toString())
 
                             //subimos los datos a firebase
-                            refBD.child("cartas").child(identificador).setValue(carta_nueva)
+                            refBD.child("cartas").child(identificador).setValue(carta_nueva).addOnSuccessListener {
+                                //volvemos a la pantalla de inicio
+                                val intent = Intent(contexto, MainActivity::class.java)
+                                startActivity(intent)
+                            }
 
 
                         } catch (e: Exception) {
@@ -179,9 +223,7 @@ class CrearCarta : AppCompatActivity() {
                     .show()
                 return@setOnClickListener
             }
-            //volvemos a la pantalla de inicio
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+
 
         }
     }
