@@ -123,8 +123,8 @@
         android:id="@+id/btn1"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/fondo_boton_verde_cian"
-        android:src="@drawable/perfil_usuario_icon"
+        android:background="@drawable/fondo_boton_verde_cian_pulsado"
+        android:src="@drawable/icono_carta"
         android:scaleType="fitCenter"
         android:padding="10dp"
 

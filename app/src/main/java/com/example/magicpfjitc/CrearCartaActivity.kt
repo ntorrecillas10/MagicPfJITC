@@ -80,8 +80,8 @@ class CrearCartaActivity : AppCompatActivity() {
 
         //Iniciamos el spinner
         val spinner = binding.tipoCarta
-        val items = arrayOf("Blanco","Rojo","Azul","Negro","Verde")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,items)
+        val items = arrayOf("Blanco", "Rojo", "Azul", "Negro", "Verde")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, items)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
 
@@ -96,11 +96,20 @@ class CrearCartaActivity : AppCompatActivity() {
                 val selectedItem = parent?.getItemAtPosition(position).toString()
                 //Hacemos un switch para cambiar el color del fondo de la carta segun lo seleccionado en el Spinner
                 when (selectedItem) {
-                    "Blanco" -> binding.addImagenCarta.background = getDrawable(R.drawable.fondo_transparente_bordes_blancos)
-                    "Rojo" -> binding.addImagenCarta.background = getDrawable(R.drawable.fondo_transparente_bordes_rojos)
-                    "Azul" -> binding.addImagenCarta.background = getDrawable(R.drawable.fondo_transparente_bordes_azul)
-                    "Negro" -> binding.addImagenCarta.background = getDrawable(R.drawable.fondo_transparente_bordes_negro)
-                    "Verde" -> binding.addImagenCarta.background = getDrawable(R.drawable.fondo_transparente_bordes_verdes)
+                    "Blanco" -> binding.addImagenCarta.background =
+                        getDrawable(R.drawable.fondo_transparente_bordes_blancos)
+
+                    "Rojo" -> binding.addImagenCarta.background =
+                        getDrawable(R.drawable.fondo_transparente_bordes_rojos)
+
+                    "Azul" -> binding.addImagenCarta.background =
+                        getDrawable(R.drawable.fondo_transparente_bordes_azul)
+
+                    "Negro" -> binding.addImagenCarta.background =
+                        getDrawable(R.drawable.fondo_transparente_bordes_negro)
+
+                    "Verde" -> binding.addImagenCarta.background =
+                        getDrawable(R.drawable.fondo_transparente_bordes_verdes)
                 }
                 carta_nueva.tipo = selectedItem
             }
@@ -119,108 +128,110 @@ class CrearCartaActivity : AppCompatActivity() {
 
         binding.addCarta.setOnClickListener {
 
-            var lista_cartas = obtenerListaCartas(refBD, this)
+            obtenerListaCartas(refBD, this) { lista_cartas ->
+                // Comprobamos si la carta ya existe solo después de obtener la lista de cartas
+                if (!existeCarta(lista_cartas, binding.nombreCarta.text.toString())) {
 
-            //comprobamos que el nombre no este ya en la base de datos
-            if (!existeCarta(lista_cartas, binding.nombreCarta.text.toString())
-            ) {
+                    var imagen = false
+                    var campos = false
+                    if (binding.addImagenCarta.drawable != null) {
+                        imagen = true
+                    }
+                    if (binding.nombreCarta.text.toString() != "" && binding.descripcionCarta.text.toString() != "" && binding.precioCarta.text.toString()
+                            .toDouble() != 0.0
+                    ) {
+                        campos = true
+                    }
+                    if (campos && imagen) {
 
-                if (binding.addImagenCarta.drawable != null) {
-                    imagen = true
-                }
-                if (binding.nombreCarta.text.toString() != "" && binding.descripcionCarta.text.toString() != "" && binding.precioCarta.text.toString().toDouble() != 0.0
-                ) {
-                    campos = true
-                }
-                if (campos && imagen) {
+                        //key única para el
+                        identificador = refBD.child("cartas").push().key!!
 
-                    //key única para el
-                    identificador = refBD.child("cartas").push().key!!
+                        Log.d("ID", identificador)
+                        Log.d("Date", carta_nueva.fecha_carta)
 
-                    Log.d("ID", identificador)
-                    Log.d("Date", carta_nueva.fecha_carta)
+                        //subimos la imagen a appwrite storage y los datos a firebase
+                        identificadorAppWrite =
+                            ID.unique() // coge el identificador y lo adapta a appwrite
 
-                    //subimos la imagen a appwrite storage y los datos a firebase
-                    identificadorAppWrite =
-                        ID.unique() // coge el identificador y lo adapta a appwrite
+                        //necesario para crear un archivo temporal con la imagen
+                        val inputStream = this.contentResolver.openInputStream(url)
 
-                    //necesario para crear un archivo temporal con la imagen
-                    val inputStream = this.contentResolver.openInputStream(url)
+                        GlobalScope.launch(Dispatchers.IO) {//scope para las funciones de appwrite, pero ya aprovechamos y metemos el código de firebase
+                            try {
 
-                    GlobalScope.launch(Dispatchers.IO) {//scope para las funciones de appwrite, pero ya aprovechamos y metemos el código de firebase
-                        try {
-
-                            val file = inputStream.use { input ->
-                                val tempFile =
-                                    kotlin.io.path.createTempFile(identificadorAppWrite).toFile()
-                                if (input != null) {
-                                    tempFile.outputStream().use { output ->
-                                        input.copyTo(output)
+                                val file = inputStream.use { input ->
+                                    val tempFile =
+                                        kotlin.io.path.createTempFile(identificadorAppWrite)
+                                            .toFile()
+                                    if (input != null) {
+                                        tempFile.outputStream().use { output ->
+                                            input.copyTo(output)
+                                        }
                                     }
+                                    InputFile.fromFile(tempFile) // tenemos un archivo temporal con la imagen
                                 }
-                                InputFile.fromFile(tempFile) // tenemos un archivo temporal con la imagen
+
+
+                                //se sube la imagen a appwrite
+                                storage.createFile(
+                                    bucketId = miBucketId,//id del bucket, este es el mío
+                                    fileId = identificadorAppWrite,
+                                    file = file
+                                )
+
+                                val url_avatar =
+                                    "https://cloud.appwrite.io/v1/storage/buckets/$miBucketId/files/$identificadorAppWrite/preview?project=$miProyectoId"
+
+                                carta_nueva = Carta(
+                                    identificador,
+                                    binding.nombreCarta.text.toString(),
+                                    url_avatar,
+                                    binding.precioCarta.text.toString().toDouble(),
+                                    binding.descripcionCarta.text.toString(),
+                                    carta_nueva.tipo
+                                )
+
+                                Log.d("carta", carta_nueva.toString())
+
+                                //subimos los datos a firebase
+                                refBD.child("cartas").child(identificador).setValue(carta_nueva)
+                                    .addOnSuccessListener {
+                                        //volvemos a la pantalla de inicio
+                                        val intent = Intent(contexto, MainActivity::class.java)
+                                        startActivity(intent)
+                                    }
+
+
+                            } catch (e: Exception) {
+                                Log.e("UploadError", "Error al subir la imagen: ${e.message}")
                             }
-
-
-                            //se sube la imagen a appwrite
-                            storage.createFile(
-                                bucketId = miBucketId,//id del bucket, este es el mío
-                                fileId = identificadorAppWrite,
-                                file = file
-                            )
-
-                            val url_avatar =
-                                "https://cloud.appwrite.io/v1/storage/buckets/$miBucketId/files/$identificadorAppWrite/preview?project=$miProyectoId"
-
-                            carta_nueva = Carta(
-                                identificador,
-                                binding.nombreCarta.text.toString(),
-                                url_avatar,
-                                binding.precioCarta.text.toString().toDouble(),
-                                binding.descripcionCarta.text.toString(),
-                                carta_nueva.tipo
-                            )
-
-                            Log.d("carta", carta_nueva.toString())
-
-                            //subimos los datos a firebase
-                            refBD.child("cartas").child(identificador).setValue(carta_nueva).addOnSuccessListener {
-                                //volvemos a la pantalla de inicio
-                                val intent = Intent(contexto, MainActivity::class.java)
-                                startActivity(intent)
-                            }
-
-
-                        } catch (e: Exception) {
-                            Log.e("UploadError", "Error al subir la imagen: ${e.message}")
                         }
+
+
+                        Toast.makeText(
+                            this,
+                            "Carta ${carta_nueva.nombre} creada con éxito",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "Rellena todos los campos y elige una imagen",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
 
+                    campos = false
+                    imagen = false
+                    binding.nombreCarta.requestFocus()
 
-                    Toast.makeText(
-                        this,
-                        "Carta ${carta_nueva.nombre} creada con éxito",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 } else {
-                    Toast.makeText(
-                        this,
-                        "Rellena todos los campos y elige una imagen",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, "El nombre de la carta ya existe", Toast.LENGTH_SHORT)
+                        .show()
+                    return@obtenerListaCartas
                 }
-                campos = false
-                imagen = false
-                //Ponemos el focus en el campo de nombre
-                binding.nombreCarta.requestFocus()
-
-            } else {
-                Toast.makeText(this, "El nombre del carta ya existe", Toast.LENGTH_SHORT)
-                    .show()
-                return@setOnClickListener
             }
-
-
         }
     }
 
@@ -241,25 +252,28 @@ class CrearCartaActivity : AppCompatActivity() {
             }
         }
 
-    fun obtenerListaCartas(db_ref: DatabaseReference, contexto: Context): MutableList<Carta> {
+    fun obtenerListaCartas(db_ref: DatabaseReference, contexto: Context, callback: (List<Carta>) -> Unit) {
         val lista_cartas = mutableListOf<Carta>()
 
         db_ref.child("cartas")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    lista_cartas.clear() // Limpiamos la lista antes de agregar los nuevos datos
                     snapshot.children.forEach { carta ->
                         val carta_nueva = carta.getValue(Carta::class.java)
-                        lista_cartas.add(carta_nueva!!)
+                        if (carta_nueva != null) {
+                            lista_cartas.add(carta_nueva)
+                        }
                     }
+                    callback(lista_cartas) // Llamamos al callback con la lista obtenida
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(contexto, "Error al obtener las cartas", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(contexto, "Error al obtener las cartas", Toast.LENGTH_SHORT).show()
                 }
             })
-        return lista_cartas
     }
+
 
     fun existeCarta(cartas: List<Carta>, nombre: String): Boolean {
         return cartas.any { it.nombre.lowercase() == nombre.lowercase() }

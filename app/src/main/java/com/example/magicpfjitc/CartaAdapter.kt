@@ -1,5 +1,6 @@
 package com.example.magicpfjitc
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +29,7 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
         return CartaViewHolder(binding)
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onBindViewHolder(holder: CartaViewHolder, position: Int) {
         val carta = displayedList[position]
         holder.binding.nombreCarta.text = carta.nombre
@@ -62,25 +64,31 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
             // Rellenar el contenido del diálogo con la información de la carta
             dialogBinding.mostrarNombreCarta.text = carta.nombre
             dialogBinding.mostrarPrecioCarta.text = "Precio: ${carta.precio}"
-            dialogBinding.mostrarDescripcionCarta.text = carta.descripcion  // Asumiendo que la carta tiene un campo 'descripcion'
+            dialogBinding.mostrarDescripcionCarta.text = carta.descripcion
 
-            // Usar Glide para cargar la imagen de la carta en el ImageView del diálogo
             Glide.with(holder.itemView.context)
                 .load(carta.imagenUrl)
                 .into(dialogBinding.mostrarImagenCarta)
 
+            dialogBinding.main.background = when (carta.tipo) {
+                "Rojo" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_rojos)
+                "Azul" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_azul)
+                "Negro" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_negro)
+                "Verde" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_verdes)
+                else -> {
+                    holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_blancos)}
+            }
+
             // Crear el AlertDialog y establecer el layout inflado con el Binding
             val builder = android.app.AlertDialog.Builder(holder.itemView.context)
             builder.setView(dialogBinding.root)
-                .setCancelable(true) // Permite cerrar el diálogo tocando fuera
+                .setCancelable(true)
 
             // Mostrar el diálogo
             val dialog = builder.create()
             dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
             dialog.show()
         }
-
-
     }
 
     override fun getItemCount(): Int = displayedList.size

@@ -5,6 +5,163 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/gris_neutro"
+    android:padding="10dp"
     tools:context=".CrearEventoActivity">
+
+
+
+    <ImageButton
+        android:id="@+id/volver"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/arrow_back_black"
+        android:background="@color/transparente"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/textoSuperior"
+        app:layout_constraintEnd_toStartOf="@id/textoSuperior"
+
+        app:layout_constraintHorizontal_weight="1"/>
+
+    <TextView
+        android:id="@+id/textoSuperior"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="AÑADIR EVENTO"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:gravity="center"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/volver"
+        app:layout_constraintEnd_toStartOf="@id/mezi"
+        app:layout_constraintBottom_toTopOf="@id/add_imagen_evento"
+
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintHorizontal_weight="10"/>
+
+    <Space
+        android:id="@+id/mezi"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/textoSuperior"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/textoSuperior"
+
+        app:layout_constraintHorizontal_weight="1"/>
+
+    <ImageButton
+        android:id="@+id/add_imagen_evento"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/photo_negro"
+        android:background="@drawable/fondo_transparente_bordes_negro"
+        android:scaleType="fitCenter"
+        android:padding="20dp"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textoSuperior"
+        app:layout_constraintBottom_toTopOf="@id/tipo_evento"
+
+        app:layout_constraintVertical_weight="6"
+        />
+
+    <Spinner
+        android:id="@+id/tipo_evento"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/add_imagen_evento"
+        app:layout_constraintBottom_toTopOf="@id/nombre_evento"
+        app:layout_constraintEnd_toEndOf="@id/nombre_evento"
+        app:layout_constraintStart_toStartOf="@id/nombre_evento"
+        app:layout_constraintVertical_weight="1"/>
+
+    <EditText
+        android:id="@+id/nombre_evento"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:hint="Nombre"
+
+        app:layout_constraintTop_toBottomOf="@id/tipo_evento"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/precio_evento"
+
+        app:layout_constraintVertical_weight="1"
+        />
+
+    <EditText
+        android:id="@+id/precio_evento"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:hint="Precio"
+
+        app:layout_constraintTop_toBottomOf="@id/nombre_evento"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/descripcion_evento"
+
+        app:layout_constraintVertical_weight="1"/>
+
+    <EditText
+        android:id="@+id/descripcion_evento"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:hint="Descripción"
+
+        app:layout_constraintTop_toBottomOf="@id/precio_evento"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/aforo_evento"
+
+        app:layout_constraintVertical_weight="1"/>
+
+    <EditText
+        android:id="@+id/aforo_evento"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:hint="Aforo máximo"
+
+        app:layout_constraintTop_toBottomOf="@id/descripcion_evento"
+        app:layout_constraintEnd_toStartOf="@id/fecha_evento"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/add_evento"
+
+        app:layout_constraintVertical_weight="1"/>
+
+    <EditText
+        android:id="@+id/fecha_evento"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:hint="Fecha"
+
+        app:layout_constraintTop_toBottomOf="@id/descripcion_evento"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/aforo_evento"
+        app:layout_constraintBottom_toTopOf="@id/add_evento"
+
+        app:layout_constraintVertical_weight="1"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/add_evento"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="Añadir"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/fondo_boton_rojo_cian"
+
+        app:layout_constraintTop_toBottomOf="@id/aforo_evento"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+
+        app:layout_constraintVertical_weight="1"/>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

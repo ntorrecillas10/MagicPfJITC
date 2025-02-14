@@ -73,7 +73,7 @@ class EventsActivity : AppCompatActivity() {
                     }
                 })
         }
-        FirebaseDatabase.getInstance().reference.child("cartas")
+        FirebaseDatabase.getInstance().reference.child("eventos")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     eventosList.clear()  // Limpiar la lista antes de añadir los nuevos datos
@@ -86,7 +86,7 @@ class EventsActivity : AppCompatActivity() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("MainActivity", "Error al obtener las cartas", error.toException())
+                    Log.e("EventsActivity", "Error al obtener las cartas", error.toException())
                 }
             })
 
@@ -156,12 +156,12 @@ class EventsActivity : AppCompatActivity() {
 
 
         binding.btnFlotante.setOnClickListener {
-            val intent = Intent(this, CrearCartaActivity::class.java)
+            val intent = Intent(this, CrearEventoActivity::class.java)
             startActivity(intent)
         }
 
-        binding.btn2.setOnClickListener {
-            val intent = Intent(this, EventsActivity::class.java)
+        binding.btn1.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
 
