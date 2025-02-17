@@ -50,53 +50,71 @@ class CarritoCartasActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         Log.d("MainActivity", auth.currentUser.toString())
-//        val currentUserId = auth.currentUser?.uid
-//
-//        if (currentUserId != null) {
-//            FirebaseDatabase.getInstance().reference
-//                .child("usuarios")
-//                .child(currentUserId)
-//                .child("admin")
-//                .addListenerForSingleValueEvent(object : ValueEventListener {
-//                    override fun onDataChange(snapshot: DataSnapshot) {
-//                        val admin = snapshot.getValue(Boolean::class.java) ?: false
-//                        if (admin) {
-//                            binding.btnFlotante.visibility = View.VISIBLE
-//                        } else {
-//                            binding.btnFlotante.visibility = View.GONE
-//                        }
-//                    }
-//
-//                    override fun onCancelled(error: DatabaseError) {
-//                        Log.e(
-//                            "MainActivity",
-//                            "Error al obtener el atributo admin",
-//                            error.toException()
-//                        )
-//                    }
-//                })
-//        }
-        FirebaseDatabase.getInstance().reference.child("cartas")
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    cartasList.clear()  // Limpiar la lista antes de añadir los nuevos datos
-                    for (cartaSnapshot in snapshot.children) {
-                        val carta = cartaSnapshot.getValue(Carta::class.java)
-                        // Verifica si la carta no es nula y si disponible es true antes de agregarla
-                        if (carta?.disponible == false && carta.comprador == auth.currentUser?.uid) {
-                            cartasList.add(carta)
+        val currentUserId = auth.currentUser?.uid
+
+        if (currentUserId != null) {
+            FirebaseDatabase.getInstance().reference
+                .child("usuarios")
+                .child(currentUserId)
+                .child("admin")
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val admin = snapshot.getValue(Boolean::class.java) ?: false
+                        if (admin) {
+
+                            FirebaseDatabase.getInstance().reference.child("cartas")
+                                .addValueEventListener(object : ValueEventListener {
+                                    override fun onDataChange(snapshot: DataSnapshot) {
+                                        cartasList.clear()  // Limpiar la lista antes de añadir los nuevos datos
+                                        for (cartaSnapshot in snapshot.children) {
+                                            val carta = cartaSnapshot.getValue(Carta::class.java)
+                                            // Verifica si la carta no es nula y si disponible es true antes de agregarla
+                                            if (carta?.disponible == false) {
+                                                cartasList.add(carta)
+                                            }
+                                        }
+                                        Log.d("Hola", cartasList.size.toString())
+                                        cartaAdapter.notifyDataSetChanged()  // Notificar que los datos han cambiado
+                                    }
+
+                                    override fun onCancelled(error: DatabaseError) {
+                                        Log.e("MainActivity", "Error al obtener las cartas", error.toException())
+                                    }
+                                })
+
+                        } else {
+
+                            FirebaseDatabase.getInstance().reference.child("cartas")
+                                .addValueEventListener(object : ValueEventListener {
+                                    override fun onDataChange(snapshot: DataSnapshot) {
+                                        cartasList.clear()  // Limpiar la lista antes de añadir los nuevos datos
+                                        for (cartaSnapshot in snapshot.children) {
+                                            val carta = cartaSnapshot.getValue(Carta::class.java)
+                                            // Verifica si la carta no es nula y si disponible es true antes de agregarla
+                                            if (carta?.disponible == false && carta.comprador == auth.currentUser?.uid) {
+                                                cartasList.add(carta)
+                                            }
+                                        }
+                                        Log.d("Hola", cartasList.size.toString())
+                                        cartaAdapter.notifyDataSetChanged()  // Notificar que los datos han cambiado
+                                    }
+
+                                    override fun onCancelled(error: DatabaseError) {
+                                        Log.e("MainActivity", "Error al obtener las cartas", error.toException())
+                                    }
+                                })
                         }
                     }
-                    Log.d("Hola", cartasList.size.toString())
-                    cartaAdapter.notifyDataSetChanged()  // Notificar que los datos han cambiado
-                }
 
-                override fun onCancelled(error: DatabaseError) {
-                    Log.e("MainActivity", "Error al obtener las cartas", error.toException())
-                }
-            })
-
-
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e(
+                            "MainActivity",
+                            "Error al obtener el atributo admin",
+                            error.toException()
+                        )
+                    }
+                })
+        }
 
         binding.fragment.setOnClickListener {
             // Abre el menú lateral al pulsar el botón

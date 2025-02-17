@@ -98,7 +98,7 @@
 
     <ImageButton
         android:id="@+id/aceptar_solicitud_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="40dp"
         android:paddingHorizontal="4dp"
         android:layout_height="0dp"
         android:scaleType="fitCenter"
@@ -123,7 +123,7 @@
 
     <ImageButton
         android:id="@+id/rechazar_solicitud_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="40dp"
         android:paddingHorizontal="4dp"
         android:layout_height="0dp"
         android:scaleType="fitCenter"
@@ -131,7 +131,7 @@
         android:background="@drawable/fondo_boton_verde_cian"
         app:layout_constraintTop_toTopOf="@id/mostrar_precio_carta"
         app:layout_constraintBottom_toBottomOf="@id/mostrar_descripcion_carta"
-        app:layout_constraintEnd_toStartOf="@id/delete_btn"/>
+        app:layout_constraintEnd_toStartOf="@id/aceptar_solicitud_btn"/>
 
 
 

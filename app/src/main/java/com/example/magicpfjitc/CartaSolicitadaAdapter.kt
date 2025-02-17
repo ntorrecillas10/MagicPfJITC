@@ -127,6 +127,7 @@ class CartaSolicitadaAdapter(originalList: List<Carta>, private val recyclerPadr
                     refBD.child("cartas").child(carta.id).child("comprador").setValue("")
                     dialog.dismiss()
                 }
+
                 dialogBinding.deleteBtn.setOnClickListener {
 
                     identificador = refBD.child("solicitudes").push().key!!
@@ -168,6 +169,10 @@ class CartaSolicitadaAdapter(originalList: List<Carta>, private val recyclerPadr
                             return@setOnClickListener
                         }
                     }
+                }
+
+                dialogBinding.aceptarSolicitudBtn.setOnClickListener {
+
                 }
 
                 // Rellenar el contenido del diálogo con la información de la carta

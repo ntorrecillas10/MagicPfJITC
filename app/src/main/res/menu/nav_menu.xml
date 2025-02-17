@@ -4,8 +4,11 @@
         android:title="Cuenta" />
     <item
         android:id="@+id/nav_item2"
-        android:title="JIJIJI" />
+        android:title="Settings" />
     <item
         android:id="@+id/author_btn"
         android:title="Author" />
+    <item
+        android:id="@+id/nav_item4"
+        android:title="Salir" />
 </menu>
