@@ -1,9 +1,12 @@
 package com.example.magicpfjitc
 
+import java.util.Date
+
 data class SolicitudCompra(
-    val carta_id: String,
-    val comprador_id: String,
-    val precio: Double,
-    val estado: String,
-    val fecha: String
+    var id: String = "",
+    var carta_id: String = "",
+    var comprador_id: String = "",
+    var precio: Double = 0.0,
+    var estado: String = "",
+    var fecha: String = dateFormat.format(Date())
 )

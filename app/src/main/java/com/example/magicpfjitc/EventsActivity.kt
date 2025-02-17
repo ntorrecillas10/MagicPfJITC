@@ -55,7 +55,6 @@ class EventsActivity : AppCompatActivity() {
         if (currentUserId != null) {
             FirebaseDatabase.getInstance().reference
                 .child("usuarios")
-                .child("normales")
                 .child(currentUserId)
                 .child("admin")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -162,6 +161,10 @@ class EventsActivity : AppCompatActivity() {
 
         binding.btn1.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+        binding.btn3.setOnClickListener {
+            val intent = Intent(this, CarritoCartasActivity::class.java)
             startActivity(intent)
         }
 

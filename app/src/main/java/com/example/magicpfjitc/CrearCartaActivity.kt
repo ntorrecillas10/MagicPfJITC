@@ -183,6 +183,7 @@ class CrearCartaActivity : AppCompatActivity() {
                                 val url_avatar =
                                     "https://cloud.appwrite.io/v1/storage/buckets/$miBucketId/files/$identificadorAppWrite/preview?project=$miProyectoId"
 
+
                                 carta_nueva = Carta(
                                     identificador,
                                     binding.nombreCarta.text.toString(),

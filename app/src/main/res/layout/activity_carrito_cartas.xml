@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/fondo_aazuloscuro_gris"
-        tools:context=".MainActivity">
+        tools:context=".CarritoCartasActivity">
 
         <ImageView
             android:id="@+id/logo_movimiento"
@@ -47,7 +47,7 @@
             android:paddingHorizontal="20dp"
             android:layout_marginHorizontal="10dp"
 
-            app:layout_constraintBottom_toTopOf="@id/mmmmezi"
+            app:layout_constraintBottom_toTopOf="@id/recycler_cartas"
             app:layout_constraintEnd_toStartOf="@id/btn_buscar"
             app:layout_constraintStart_toEndOf="@id/fragment"
             app:layout_constraintTop_toBottomOf="@id/logo_movimiento"
@@ -70,29 +70,12 @@
 
             app:layout_constraintHorizontal_weight="2"/>
 
-        <TextView
-            android:id="@+id/mmmmezi"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="EVENTOS"
-            android:textSize="20dp"
-            android:gravity="center"
-            android:textColor="@color/white"
-            android:shadowColor="@color/verde_esmeralda"
-            android:shadowDx="3"
-            android:shadowDy="3"
-            android:shadowRadius="2"
-            app:layout_constraintTop_toBottomOf="@id/textoSuperior"
-            app:layout_constraintBottom_toTopOf="@id/recycler_eventos"
-            app:layout_constraintEnd_toEndOf="@id/recycler_eventos"
-            app:layout_constraintStart_toStartOf="@id/recycler_eventos"/>
-
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_eventos"
+            android:id="@+id/recycler_cartas"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            tools:listitem="@layout/item_evento"
+            tools:listitem="@layout/item_carta"
             android:scrollbars="vertical"
             android:clipToPadding="false"
             android:background="@drawable/edit_fondo_negro_cian"
@@ -101,24 +84,10 @@
 
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/mmmmezi"
+            app:layout_constraintTop_toBottomOf="@id/textoSuperior"
             app:layout_constraintBottom_toTopOf="@id/guideline"
 
             app:layout_constraintVertical_weight="30"/>
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btn_flotante"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_marginEnd="5dp"
-            android:background="@drawable/fondo_boton_rojo_cian_flotante"
-            android:scaleType="fitCenter"
-            android:padding="10dp"
-            android:src="@drawable/add_white"
-            app:layout_constraintBottom_toBottomOf="@id/recycler_eventos"
-            app:layout_constraintEnd_toEndOf="@id/recycler_eventos" />
-
-
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
@@ -145,7 +114,7 @@
             android:id="@+id/btn2"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/fondo_boton_verde_cian_pulsado"
+            android:background="@drawable/fondo_boton_verde_cian"
             android:src="@drawable/amigos_icon"
             android:scaleType="fitCenter"
             android:padding="10dp"
@@ -159,7 +128,7 @@
             android:id="@+id/btn3"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/fondo_boton_verde_cian"
+            android:background="@drawable/fondo_boton_verde_cian_pulsado"
             android:src="@drawable/carrito_icon"
             android:scaleType="fitCenter"
             android:padding="10dp"

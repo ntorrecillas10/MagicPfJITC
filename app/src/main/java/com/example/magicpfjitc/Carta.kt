@@ -13,5 +13,7 @@ data class Carta(
     var descripcion: String = "",
     var tipo: String = "Blanco",
     var disponible: Boolean = true,
+    var comprador: String = "",
+    var en_proceso: Boolean = false,
     var fecha_carta: String = dateFormat.format(Date())
 ): Parcelable

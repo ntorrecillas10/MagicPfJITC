@@ -1,6 +1,8 @@
 package com.example.magicpfjitc
 
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -9,12 +11,16 @@ import com.example.magicpfjitc.databinding.DialogCartaBinding
 import com.example.magicpfjitc.databinding.DialogEventoBinding
 import com.example.magicpfjitc.databinding.ItemCartaBinding
 import com.example.magicpfjitc.databinding.ItemEventoBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import io.appwrite.Client
 import io.appwrite.services.Storage
 
-class EventoAdapter(originalList: List<Evento>, private val recyclerPadre: RecyclerView) : RecyclerView.Adapter<EventoAdapter.EventoViewHolder>()  {
+class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: RecyclerView) : RecyclerView.Adapter<EventoAdapter.EventoViewHolder>()  {
 
     private var displayedList: List<Evento> = originalList // Lista que se muestra actualmente
 
@@ -26,6 +32,7 @@ class EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recyc
     private lateinit var miBucketId: String
     private lateinit var miProyectoId: String
     private lateinit var refBD: DatabaseReference
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventoViewHolder {
         val binding = ItemEventoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -55,6 +62,30 @@ class EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recyc
         holder.binding.main.setOnClickListener {
             // Crear el Binding para el diálogo
             val dialogBinding = DialogEventoBinding.inflate(LayoutInflater.from(holder.itemView.context))
+            auth = FirebaseAuth.getInstance()
+
+            Log.d("CartaAdapter", auth.currentUser.toString())
+            val currentUserId = auth.currentUser?.uid
+
+            if (currentUserId != null) {
+                FirebaseDatabase.getInstance().reference
+                    .child("usuarios")
+                    .child(currentUserId)
+                    .child("admin")
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val admin = snapshot.getValue(Boolean::class.java) ?: false
+                            if (admin) {
+                                dialogBinding.entrarBtn.visibility = View.GONE
+                            } else {
+                                dialogBinding.editBtn.visibility = View.GONE
+                            }
+                        }
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("CartaAdapter", "Error al obtener el atributo admin", error.toException())
+                        }
+                    })
+            }
 
             // Rellenar el contenido del diálogo con la información de la carta
             dialogBinding.mostrarNombreEvento.text = evento.nombre

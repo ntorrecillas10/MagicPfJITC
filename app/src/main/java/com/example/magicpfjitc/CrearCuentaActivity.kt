@@ -22,7 +22,7 @@ class CrearCuentaActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
-        db_ref = FirebaseDatabase.getInstance().getReference("usuarios/normales")
+        db_ref = FirebaseDatabase.getInstance().getReference("usuarios")
 
         binding.volver.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
