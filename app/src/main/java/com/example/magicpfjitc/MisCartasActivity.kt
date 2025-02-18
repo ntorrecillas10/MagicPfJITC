@@ -1,16 +1,9 @@
 package com.example.magicpfjitc
 
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -18,63 +11,35 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.magicpfjitc.databinding.ActivityMainBinding
+import com.example.magicpfjitc.databinding.ActivityMisCartasBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class MainActivity : AppCompatActivity() {
+class MisCartasActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMisCartasBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var cartasList: MutableList<Carta>
-    private lateinit var cartaAdapter: CartaAdapter
-    private var admin: Boolean = false
+    private lateinit var cartaAdapter: CartaSolicitadaAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMisCartasBinding.inflate(layoutInflater)
         setContentView(binding.root)
         cartasList = mutableListOf()
         binding.recyclerCartas.layoutManager = GridLayoutManager(this, 3)
-        cartaAdapter = CartaAdapter(cartasList, binding.recyclerCartas, this)
+        cartaAdapter = CartaSolicitadaAdapter(cartasList, binding.recyclerCartas)
         binding.recyclerCartas.adapter = cartaAdapter
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        //Damos movimiento lateral a la imagen del logo
-
-
         auth = FirebaseAuth.getInstance()
-
-        Log.d("MainActivity", auth.currentUser.toString())
-        val currentUserId = auth.currentUser?.uid
-
-        if (currentUserId != null) {
-            FirebaseDatabase.getInstance().reference
-                .child("usuarios")
-                .child(currentUserId)
-                .child("admin")
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        admin = snapshot.getValue(Boolean::class.java) ?: false
-                        if (admin) {
-                            binding.btnFlotante.visibility = View.VISIBLE
-                        } else {
-                            binding.btnFlotante.visibility = View.GONE
-                        }
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        Log.e("MainActivity", "Error al obtener el atributo admin", error.toException())
-                    }
-                })
-        }
         FirebaseDatabase.getInstance().reference.child("cartas")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -82,7 +47,7 @@ class MainActivity : AppCompatActivity() {
                     for (cartaSnapshot in snapshot.children) {
                         val carta = cartaSnapshot.getValue(Carta::class.java)
                         // Verifica si la carta no es nula y si disponible es true antes de agregarla
-                        if (carta?.comprador == "") {
+                        if (carta?.comprador == auth.currentUser?.uid && carta?.disponible == true) {
                             cartasList.add(carta)
                         }
                     }
@@ -94,7 +59,6 @@ class MainActivity : AppCompatActivity() {
                     Log.e("MainActivity", "Error al obtener las cartas", error.toException())
                 }
             })
-
 
 
         binding.fragment.setOnClickListener {
@@ -114,6 +78,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.author_btn -> {
                     mostrarBottomSheetDialog()
                 }
+
                 R.id.logout_btn -> {
                     auth.signOut()
                     val intent = Intent(this, LoginActivity::class.java)
@@ -123,38 +88,6 @@ class MainActivity : AppCompatActivity() {
             }
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             true
-        }
-
-        val spinner = binding.spinnerFiltros
-        val items = arrayOf("Filtrar lista de cartas","Precio menor a mayor", "Precio menor a mayor", "Alfabeticamente", "Por tipo")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,items)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = adapter
-
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            @SuppressLint("UseCompatLoadingForDrawables")
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val selectedItem = parent?.getItemAtPosition(position).toString()
-                when (selectedItem) {
-                    items[0] -> cartasList.sortBy { it.fecha_carta }
-                    items[1] -> cartasList.sortBy { it.precio }
-                    items[2] -> cartasList.sortByDescending { it.precio }
-                    items[3] -> cartasList.sortBy { it.nombre }
-                    items[4] -> cartasList.sortBy { it.tipo }
-                }
-                cartaAdapter.notifyDataSetChanged()
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                TODO("Not yet implemented")
-            }
-
-
         }
 
         binding.textoSuperior.doOnTextChanged { text, _, _, _ ->
@@ -168,9 +101,8 @@ class MainActivity : AppCompatActivity() {
             cartaAdapter.updateList(filteredList) // Actualizamos la lista mostrada
         }
 
-
-        binding.btnFlotante.setOnClickListener {
-            val intent = Intent(this, CrearCartaActivity::class.java)
+        binding.btn1.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
 
@@ -178,18 +110,11 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, EventsActivity::class.java)
             startActivity(intent)
         }
+
+
         binding.btn3.setOnClickListener {
             val intent = Intent(this, CarritoCartasActivity::class.java)
             startActivity(intent)
-        }
-
-
-
-        if (!admin) {
-            binding.btn4.setOnClickListener {
-                val intent = Intent(this, MisCartasActivity::class.java)
-                startActivity(intent)
-            }
         }
 
     }
@@ -216,20 +141,5 @@ class MainActivity : AppCompatActivity() {
         cartaAdapter.notifyDataSetChanged()
 
 
-    }
-    private var imageSelectionCallback: ((Uri) -> Unit)? = null
-
-    private val urlGaleria =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            if (uri != null) {
-                imageSelectionCallback?.invoke(uri)
-            } else {
-                Toast.makeText(this, "No has seleccionado ninguna imagen", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-    fun openGallery(callback: (Uri) -> Unit) {
-        imageSelectionCallback = callback
-        urlGaleria.launch("image/*")
     }
 }

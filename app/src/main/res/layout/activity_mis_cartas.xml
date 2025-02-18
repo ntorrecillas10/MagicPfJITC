@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/fondo_aazuloscuro_gris"
-        tools:context=".CarritoCartasActivity">
+        tools:context=".MisCartasActivity">
 
         <ImageView
             android:id="@+id/logo_movimiento"
@@ -44,7 +44,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginHorizontal="10dp"
-            android:text="Carrito de cartas"
+            android:text="Mis cartas"
             android:gravity="center"
             android:textColor="@color/black"
             android:textSize="25dp"
@@ -71,7 +71,6 @@
             app:layout_constraintTop_toTopOf="@id/textoSuperior"
 
             app:layout_constraintHorizontal_weight="2"/>
-
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_cartas"
@@ -130,7 +129,7 @@
             android:id="@+id/btn3"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/fondo_boton_verde_cian_pulsado"
+            android:background="@drawable/fondo_boton_verde_cian"
             android:src="@drawable/carrito_icon"
             android:scaleType="fitCenter"
             android:padding="10dp"
@@ -144,7 +143,7 @@
             android:id="@+id/btn4"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/fondo_boton_verde_cian"
+            android:background="@drawable/fondo_boton_verde_cian_pulsado"
             android:src="@drawable/baraja_icon"
             android:scaleType="fitCenter"
             android:padding="10dp"

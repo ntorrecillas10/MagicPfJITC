@@ -94,12 +94,10 @@ class CartaSolicitadaAdapter(
                     if (admin) {
                         deleteBtn.visibility = View.GONE
                         enviarSolicitudBtn.visibility = View.GONE
-                    } else if (!carta.en_proceso) {
+                    } else  {
                         aceptarSolicitudBtn.visibility = View.GONE
                         rechazarSolicitudBtn.visibility = View.GONE
                         comprador.visibility = View.GONE
-                    } else {
-                        return@setOnClickListener
                     }
 
                     // Configuración de botones
@@ -125,7 +123,7 @@ class CartaSolicitadaAdapter(
                             .setValue(solicitudNueva)
                             .addOnSuccessListener {
                                 Log.d("CartaAdapter", "Solicitud enviada correctamente")
-                                carta.en_proceso = true
+                                refBD.child("cartas").child(carta.id).child("en_proceso").setValue(true)
                                 dialog.dismiss()
                             }
                             .addOnFailureListener { e ->
@@ -136,6 +134,9 @@ class CartaSolicitadaAdapter(
                     aceptarSolicitudBtn.setOnClickListener {
                         refBD.child("solicitudes").child(carta.id).child("estado").setValue("Aceptada")
                         refBD.child("cartas").child(carta.id).child("en_proceso").setValue(false)
+                        refBD.child("cartas").child(carta.id).child("disponible").setValue(true)
+
+                        dialog.dismiss()
                     }
 
                     // Cargar información en el diálogo

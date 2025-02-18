@@ -29,6 +29,7 @@ class CarritoCartasActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var cartasList: MutableList<Carta>
     private lateinit var cartaAdapter: CartaSolicitadaAdapter
+    private var admin: Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +46,6 @@ class CarritoCartasActivity : AppCompatActivity() {
             insets
         }
 
-
         //Damos movimiento lateral a la imagen del logo
         auth = FirebaseAuth.getInstance()
 
@@ -59,7 +59,7 @@ class CarritoCartasActivity : AppCompatActivity() {
                 .child("admin")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        val admin = snapshot.getValue(Boolean::class.java) ?: false
+                        admin = snapshot.getValue(Boolean::class.java) ?: false
                         if (admin) {
 
                             FirebaseDatabase.getInstance().reference.child("cartas")
@@ -69,7 +69,7 @@ class CarritoCartasActivity : AppCompatActivity() {
                                         for (cartaSnapshot in snapshot.children) {
                                             val carta = cartaSnapshot.getValue(Carta::class.java)
                                             // Verifica si la carta no es nula y si disponible es true antes de agregarla
-                                            if (carta?.disponible == false) {
+                                            if (carta?.en_proceso == true) {
                                                 cartasList.add(carta)
                                             }
                                         }
@@ -122,16 +122,22 @@ class CarritoCartasActivity : AppCompatActivity() {
         }
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_item1 -> {
-                    // Acción para el primer botón
-                }
-
-                R.id.nav_item2 -> {
-                    // Acción para el segundo botón
-                }
-
+//                R.id.perfil_btn -> {
+//                    val intent = Intent(this, PerfilActivity::class.java)
+//                    startActivity(intent)
+//                }
+//                R.id.settings_btn -> {
+//                    val intent = Intent(this, SettingsActivity::class.java)
+//                    startActivity(intent)
+//                }
                 R.id.author_btn -> {
                     mostrarBottomSheetDialog()
+                }
+                R.id.logout_btn -> {
+                    auth.signOut()
+                    val intent = Intent(this, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 }
             }
             binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -160,11 +166,11 @@ class CarritoCartasActivity : AppCompatActivity() {
         }
 
 
-        binding.btn4.setOnClickListener {
-            auth.signOut()
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
+        if (!admin) {
+            binding.btn4.setOnClickListener {
+                val intent = Intent(this, MisCartasActivity::class.java)
+                startActivity(intent)
+            }
         }
 
     }

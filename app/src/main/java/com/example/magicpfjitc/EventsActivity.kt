@@ -29,6 +29,7 @@ class EventsActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var eventosList: MutableList<Evento>
     private lateinit var eventoAdapter: EventoAdapter
+    private var admin: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +60,7 @@ class EventsActivity : AppCompatActivity() {
                 .child("admin")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        val admin = snapshot.getValue(Boolean::class.java) ?: false
+                        admin = snapshot.getValue(Boolean::class.java) ?: false
                         if (admin) {
                             binding.btnFlotante.visibility = View.VISIBLE
                         } else {
@@ -96,51 +97,27 @@ class EventsActivity : AppCompatActivity() {
         }
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_item1 -> {
-                    // Acción para el primer botón
-                }
-                R.id.nav_item2 -> {
-                    // Acción para el segundo botón
-                }
+//                R.id.perfil_btn -> {
+//                    val intent = Intent(this, PerfilActivity::class.java)
+//                    startActivity(intent)
+//                }
+//                R.id.settings_btn -> {
+//                    val intent = Intent(this, SettingsActivity::class.java)
+//                    startActivity(intent)
+//                }
                 R.id.author_btn -> {
                     mostrarBottomSheetDialog()
+                }
+                R.id.logout_btn -> {
+                    auth.signOut()
+                    val intent = Intent(this, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 }
             }
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
-
-//        val spinner = binding.spinnerFiltros
-//        val items = arrayOf("Filtrar lista","Precio menor a mayor", "Precio menor a mayor", "Alfabeticamente", "Por tipo")
-//        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,items)
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        spinner.adapter = adapter
-//
-//        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            @SuppressLint("UseCompatLoadingForDrawables")
-//            override fun onItemSelected(
-//                parent: AdapterView<*>?,
-//                view: View?,
-//                position: Int,
-//                id: Long
-//            ) {
-//                val selectedItem = parent?.getItemAtPosition(position).toString()
-//                when (selectedItem) {
-//                    "Filtrar lista" -> eventosList.sortBy { it.fecha_carta }
-//                    "Precio menor a mayor" -> cartasList.sortBy { it.precio }
-//                    "Precio mayor a menor" -> cartasList.sortByDescending { it.precio }
-//                    "Alfabeticamente" -> cartasList.sortBy { it.nombre }
-//                    "Por tipo" -> cartasList.sortBy { it.tipo }
-//                }
-//                cartaAdapter.notifyDataSetChanged()
-//            }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>?) {
-//                TODO("Not yet implemented")
-//            }
-//
-//
-//        }
 
         binding.textoSuperior.doOnTextChanged { text, _, _, _ ->
             val filteredList = if (text.isNullOrEmpty()) {
@@ -169,11 +146,12 @@ class EventsActivity : AppCompatActivity() {
         }
 
 
-        binding.btn4.setOnClickListener {
-            auth.signOut()
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
+
+        if (!admin) {
+            binding.btn4.setOnClickListener {
+                val intent = Intent(this, MisCartasActivity::class.java)
+                startActivity(intent)
+            }
         }
 
     }

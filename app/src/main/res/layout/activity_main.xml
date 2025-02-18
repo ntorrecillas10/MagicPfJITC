@@ -59,7 +59,7 @@
         android:id="@+id/btn_buscar"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/transparente"
+        android:background="@android:color/transparent"
         android:src="@drawable/search_black"
         android:layout_marginHorizontal="20dp"
 
