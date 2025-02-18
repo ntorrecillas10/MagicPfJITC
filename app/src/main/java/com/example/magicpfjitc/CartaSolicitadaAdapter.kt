@@ -21,22 +21,33 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class CartaSolicitadaAdapter(originalList: List<Carta>, private val recyclerPadre: RecyclerView) :
-    RecyclerView.Adapter<CartaSolicitadaAdapter.CartaViewHolder>() {
+class CartaSolicitadaAdapter(
+    originalList: List<Carta>,
+    private val recyclerPadre: RecyclerView
+) : RecyclerView.Adapter<CartaSolicitadaAdapter.CartaViewHolder>() {
 
-    private var displayedList: List<Carta> = originalList // Lista que se muestra actualmente
+    private var displayedList: List<Carta> = originalList
+    private val refBD: DatabaseReference = FirebaseDatabase.getInstance().reference
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private var admin: Boolean = false
+
+    init {
+        auth.currentUser?.uid?.let { userId ->
+            refBD.child("usuarios").child(userId).child("admin")
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        admin = snapshot.getValue(Boolean::class.java) ?: false
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("CartaAdapter", "Error al obtener admin", error.toException())
+                    }
+                })
+        }
+    }
 
     inner class CartaViewHolder(val binding: ItemCartaBinding) :
         RecyclerView.ViewHolder(binding.root)
-
-    private lateinit var appWriteClient: Client
-    private lateinit var storage: Storage
-    private lateinit var miBucketId: String
-    private lateinit var miProyectoId: String
-    private val refBD: DatabaseReference = FirebaseDatabase.getInstance().reference
-    private lateinit var auth: FirebaseAuth
-    private lateinit var identificador: String
-    private lateinit var solicitud_nueva: SolicitudCompra//objeto carta para crear
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CartaViewHolder {
         val binding = ItemCartaBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -46,165 +57,120 @@ class CartaSolicitadaAdapter(originalList: List<Carta>, private val recyclerPadr
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onBindViewHolder(holder: CartaViewHolder, position: Int) {
         val carta = displayedList[position]
-        holder.binding.nombreCarta.text = carta.nombre
-        holder.binding.precioCarta.text = carta.precio.toString()
-        holder.binding.main.background = when (carta.tipo) {
-            "Rojo" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_rojos)
-            "Azul" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_azul)
-            "Negro" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_negro)
-            "Verde" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_verdes)
-            else -> {
-                holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_blancos)
+        val context = holder.itemView.context
+
+        with(holder.binding) {
+            nombreCarta.text = carta.nombre
+            precioCarta.text = carta.precio.toString()
+
+            main.background = when (carta.tipo) {
+                "Rojo" -> context.getDrawable(R.drawable.fondo_transparente_bordes_rojos)
+                "Azul" -> context.getDrawable(R.drawable.fondo_transparente_bordes_azul)
+                "Negro" -> context.getDrawable(R.drawable.fondo_transparente_bordes_negro)
+                "Verde" -> context.getDrawable(R.drawable.fondo_transparente_bordes_verdes)
+                else -> context.getDrawable(R.drawable.fondo_transparente_bordes_blancos)
             }
-        }
-        miProyectoId = "67a65b4b001c887a9b81" // ID del proyecto de Appwrite
-        miBucketId = "67a783770038c6aa0389" // ID del bucket de Appwrite
 
-        appWriteClient = Client(holder.itemView.context)
-            .setEndpoint("https://cloud.appwrite.io/v1")
-            .setProject(miProyectoId)
+            Glide.with(context).load(carta.imagenUrl).into(iconoCarta)
 
-        storage = Storage(appWriteClient)
+            // Si la carta está en proceso y el usuario NO es admin, cambia el fondo y no permite clics
+            if (carta.en_proceso && !admin) {
+                main.background = context.getDrawable(R.drawable.fondo_turquesa_negro)
+                return
+            }
 
-        Glide.with(holder.itemView.context)
-            .load(carta.imagenUrl)
-            .into(holder.binding.iconoCarta)
-
-        if (!carta.en_proceso) {
-
-            holder.binding.main.setOnClickListener {
-                // Crear el Binding para el diálogo
-                val dialogBinding =
-                    DialogCartaEnprocesoBinding.inflate(LayoutInflater.from(holder.itemView.context))
-
-                // Crear el AlertDialog y establecer el layout inflado con el Binding
-                val builder = android.app.AlertDialog.Builder(holder.itemView.context)
-                builder.setView(dialogBinding.root)
+            main.setOnClickListener {
+                val dialogBinding = DialogCartaEnprocesoBinding.inflate(LayoutInflater.from(context))
+                val dialog = android.app.AlertDialog.Builder(context)
+                    .setView(dialogBinding.root)
                     .setCancelable(true)
+                    .create().apply {
+                        window?.setBackgroundDrawableResource(android.R.color.transparent)
+                    }
 
-                // Mostrar el diálogo
-                val dialog = builder.create()
-                dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
                 dialog.show()
 
-                auth = FirebaseAuth.getInstance()
-
-                Log.d("CartaAdapter", auth.currentUser.toString())
-                val currentUserId = auth.currentUser?.uid
-
-                if (currentUserId != null) {
-                    FirebaseDatabase.getInstance().reference
-                        .child("usuarios")
-                        .child(currentUserId)
-                        .child("admin")
-                        .addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                val admin = snapshot.getValue(Boolean::class.java) ?: false
-                                if (admin) {
-                                    dialogBinding.deleteBtn.visibility = View.GONE
-                                    dialogBinding.enviarSolicitudBtn.visibility = View.GONE
-                                } else {
-                                    dialogBinding.aceptarSolicitudBtn.visibility = View.GONE
-                                    dialogBinding.rechazarSolicitudBtn.visibility = View.GONE
-                                    dialogBinding.comprador.visibility = View.GONE
-                                }
-                            }
-
-                            override fun onCancelled(error: DatabaseError) {
-                                Log.e(
-                                    "CartaAdapter",
-                                    "Error al obtener el atributo admin",
-                                    error.toException()
-                                )
-                            }
-                        })
-                }
-
-                dialogBinding.enviarSolicitudBtn.setOnClickListener {
-                    Log.d("CartaAdapter", "Carta eliminada")
-                    //Se establece la disponibilidad de la carta en false y se guarda el email del comprador en el valor
-                    refBD.child("cartas").child(carta.id).child("disponible").setValue(true)
-                    refBD.child("cartas").child(carta.id).child("comprador").setValue("")
-                    dialog.dismiss()
-                }
-
-                dialogBinding.deleteBtn.setOnClickListener {
-
-                    identificador = refBD.child("solicitudes").push().key!!
-                    Log.d("CartaAdapter", "Identificador: $identificador")
-                    refBD.child("cartas").child(carta.id).child("en_proceso").setValue(true)
-                    //Creamos la solicitud de compra
-
-                    if (identificador == null) {
-                        Log.e("CartaAdapter", "Error al generar identificador")
-                        return@setOnClickListener
+                with(dialogBinding) {
+                    if (admin) {
+                        deleteBtn.visibility = View.GONE
+                        enviarSolicitudBtn.visibility = View.GONE
+                    } else if (!carta.en_proceso) {
+                        aceptarSolicitudBtn.visibility = View.GONE
+                        rechazarSolicitudBtn.visibility = View.GONE
+                        comprador.visibility = View.GONE
                     } else {
-                        if (currentUserId != null) {
-
-                            solicitud_nueva = SolicitudCompra(
-                                identificador,
-                                carta.id,
-                                currentUserId,
-                                carta.precio,
-                                "Pendiente",
-                            )
-
-                            //subimos los datos a firebase
-                            refBD.child("solicitudes").child(identificador!!)
-                                .setValue(solicitud_nueva)
-                                .addOnSuccessListener {
-                                    Log.d("CartaAdapter", "Solicitud enviada correctamente")
-                                    dialog.dismiss()
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e(
-                                        "CartaAdapter",
-                                        "Error al enviar solicitud: ${e.message}",
-                                        e
-                                    )
-                                }
-
-                        } else {
-                            Log.e("CartaAdapter", "No hay usuario")
-                            return@setOnClickListener
-                        }
+                        return@setOnClickListener
                     }
-                }
 
-                dialogBinding.aceptarSolicitudBtn.setOnClickListener {
+                    // Configuración de botones
+                    deleteBtn.setOnClickListener {
+                        refBD.child("cartas").child(carta.id).apply {
+                            child("disponible").setValue(true)
+                            child("comprador").setValue("")
+                        }
+                        Log.d("CartaAdapter", "Carta eliminada")
+                        dialog.dismiss()
+                    }
 
-                }
+                    enviarSolicitudBtn.setOnClickListener {
 
-                // Rellenar el contenido del diálogo con la información de la carta
-                dialogBinding.mostrarNombreCarta.text = carta.nombre
-                dialogBinding.mostrarPrecioCarta.text = "Precio: ${carta.precio}"
-                dialogBinding.mostrarDescripcionCarta.text = carta.descripcion
+                        val solicitudNueva = SolicitudCompra(
+                            carta.id,
+                            auth.currentUser!!.uid,
+                            carta.precio,
+                            "Pendiente",
+                        )
 
-                Glide.with(holder.itemView.context)
-                    .load(carta.imagenUrl)
-                    .into(dialogBinding.mostrarImagenCarta)
+                        refBD.child("solicitudes").child(carta.id)
+                            .setValue(solicitudNueva)
+                            .addOnSuccessListener {
+                                Log.d("CartaAdapter", "Solicitud enviada correctamente")
+                                carta.en_proceso = true
+                                dialog.dismiss()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("CartaAdapter", "Error al enviar solicitud: ${e.message}", e)
+                            }
+                    }
 
-                dialogBinding.main.background = when (carta.tipo) {
-                    "Rojo" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_rojos)
-                    "Azul" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_azul)
-                    "Negro" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_negro)
-                    "Verde" -> holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_verdes)
-                    else -> {
-                        holder.itemView.context.getDrawable(R.drawable.fondo_transparente_bordes_blancos)
+                    aceptarSolicitudBtn.setOnClickListener {
+                        refBD.child("solicitudes").child(carta.id).child("estado").setValue("Aceptada")
+                        refBD.child("cartas").child(carta.id).child("en_proceso").setValue(false)
+                    }
+
+                    // Cargar información en el diálogo
+                    mostrarNombreCarta.text = carta.nombre
+                    mostrarPrecioCarta.text = "Precio: ${carta.precio}"
+                    mostrarDescripcionCarta.text = carta.descripcion
+
+                    refBD.child("usuarios").child(carta.comprador).child("usuario")
+                        .get()
+                        .addOnSuccessListener { snapshot ->
+                            comprador.text = snapshot.getValue(String::class.java) ?: "Desconocido"
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e("CartaAdapter", "Error al obtener el nombre de usuario", exception)
+                            comprador.text = "Error"
+                        }
+
+                    Glide.with(context).load(carta.imagenUrl).into(mostrarImagenCarta)
+
+                    main.background = when (carta.tipo) {
+                        "Rojo" -> context.getDrawable(R.drawable.fondo_transparente_bordes_rojos)
+                        "Azul" -> context.getDrawable(R.drawable.fondo_transparente_bordes_azul)
+                        "Negro" -> context.getDrawable(R.drawable.fondo_transparente_bordes_negro)
+                        "Verde" -> context.getDrawable(R.drawable.fondo_transparente_bordes_verdes)
+                        else -> context.getDrawable(R.drawable.fondo_transparente_bordes_blancos)
                     }
                 }
             }
-
-        } else {
-            holder.binding.main.background =
-                holder.itemView.context.getDrawable(R.drawable.fondo_turquesa_negro)
         }
     }
 
-        override fun getItemCount(): Int = displayedList.size
+    override fun getItemCount(): Int = displayedList.size
 
-        fun updateList(newList: List<Carta>) {
-            displayedList = newList
-            notifyDataSetChanged()
-        }
+    fun updateList(newList: List<Carta>) {
+        displayedList = newList
+        notifyDataSetChanged()
     }
+}
