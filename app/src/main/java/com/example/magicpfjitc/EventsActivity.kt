@@ -2,6 +2,7 @@ package com.example.magicpfjitc
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -38,7 +40,7 @@ class EventsActivity : AppCompatActivity() {
         setContentView(binding.root)
         eventosList = mutableListOf()
         binding.recyclerEventos.layoutManager = GridLayoutManager(this, 1)
-        eventoAdapter = EventoAdapter(eventosList, binding.recyclerEventos)
+        eventoAdapter = EventoAdapter(eventosList, binding.recyclerEventos, this)
         binding.recyclerEventos.adapter = eventoAdapter
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -217,7 +219,21 @@ class EventsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         eventoAdapter.notifyDataSetChanged()
+    }
 
+    private var imageSelectionCallback: ((Uri) -> Unit)? = null
 
+    private val urlGaleria =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            if (uri != null) {
+                imageSelectionCallback?.invoke(uri)
+            } else {
+                Toast.makeText(this, "No has seleccionado ninguna imagen", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    fun openGallery(callback: (Uri) -> Unit) {
+        imageSelectionCallback = callback
+        urlGaleria.launch("image/*")
     }
 }

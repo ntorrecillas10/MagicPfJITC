@@ -74,7 +74,7 @@
 
     <ImageButton
         android:id="@+id/entrar_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="50dp"
         android:paddingHorizontal="4dp"
         android:layout_height="0dp"
         android:scaleType="fitCenter"
@@ -86,7 +86,7 @@
 
     <ImageButton
         android:id="@+id/edit_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="50dp"
         android:paddingHorizontal="4dp"
         android:layout_height="0dp"
         android:scaleType="fitCenter"
@@ -95,6 +95,18 @@
         app:layout_constraintTop_toTopOf="@id/mostrar_precio_evento"
         app:layout_constraintBottom_toBottomOf="@id/mostrar_descripcion_evento"
         app:layout_constraintEnd_toEndOf="@id/mostrar_precio_evento"/>
+
+    <ImageButton
+        android:id="@+id/ver_participantes_btn"
+        android:layout_width="50dp"
+        android:paddingHorizontal="4dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/perfil_usuario_icon"
+        android:background="@drawable/fondo_boton_verde_cian"
+        app:layout_constraintTop_toTopOf="@id/mostrar_precio_evento"
+        app:layout_constraintBottom_toBottomOf="@id/mostrar_descripcion_evento"
+        app:layout_constraintEnd_toStartOf="@id/edit_btn"/>
 
     <TextView
         android:id="@+id/mostrar_aforo_evento"

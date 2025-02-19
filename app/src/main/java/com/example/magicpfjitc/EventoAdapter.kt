@@ -1,9 +1,11 @@
 package com.example.magicpfjitc
 
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
@@ -11,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.example.magicpfjitc.CartaAdapter.CartaViewHolder
 import com.example.magicpfjitc.databinding.DialogCartaBinding
 import com.example.magicpfjitc.databinding.DialogEventoBinding
+import com.example.magicpfjitc.databinding.DialogEventoEditarBinding
 import com.example.magicpfjitc.databinding.ItemCartaBinding
 import com.example.magicpfjitc.databinding.ItemEventoBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -20,9 +23,16 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import io.appwrite.Client
+import io.appwrite.ID
+import io.appwrite.models.InputFile
 import io.appwrite.services.Storage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
-class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: RecyclerView) : RecyclerView.Adapter<EventoAdapter.EventoViewHolder>()  {
+class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: RecyclerView, private val eventsAct: EventsActivity) : RecyclerView.Adapter<EventoAdapter.EventoViewHolder>()  {
 
     private var displayedList: List<Evento> = originalList // Lista que se muestra actualmente
 
@@ -36,6 +46,9 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
     private lateinit var refBD: DatabaseReference
     private lateinit var auth: FirebaseAuth
     private lateinit var evento: Evento
+    private var url: Uri? = null // Variable para almacenar la URL de la imagen seleccionada
+    private val scope = MainScope()
+    private lateinit var identificadorAppWrite: String
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventoViewHolder {
         val binding = ItemEventoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -64,7 +77,8 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
 
         holder.binding.main.setOnClickListener {
             // Crear el Binding para el diálogo
-            val dialogBinding = DialogEventoBinding.inflate(LayoutInflater.from(holder.itemView.context))
+            val dialogBinding =
+                DialogEventoBinding.inflate(LayoutInflater.from(holder.itemView.context))
             auth = FirebaseAuth.getInstance()
 
             Log.d("CartaAdapter", auth.currentUser.toString())
@@ -82,10 +96,16 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
                                 dialogBinding.entrarBtn.visibility = View.GONE
                             } else {
                                 dialogBinding.editBtn.visibility = View.GONE
+                                dialogBinding.verParticipantesBtn.visibility = View.GONE
                             }
                         }
+
                         override fun onCancelled(error: DatabaseError) {
-                            Log.e("CartaAdapter", "Error al obtener el atributo admin", error.toException())
+                            Log.e(
+                                "CartaAdapter",
+                                "Error al obtener el atributo admin",
+                                error.toException()
+                            )
                         }
                     })
             }
@@ -113,14 +133,104 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
 
             dialogBinding.entrarBtn.setOnClickListener {
                 mostrarBottomSheetDialogEventos()
+            }
+            dialogBinding.editBtn.setOnClickListener {
+
+
+                //Abrimos el dialog
+                val dialogBinding2 =
+                    DialogEventoEditarBinding.inflate(LayoutInflater.from(holder.itemView.context))
+
+
+                // Crear el AlertDialog y establecer el layout inflado con el Binding
+                val builder = android.app.AlertDialog.Builder(holder.itemView.context)
+                builder.setView(dialogBinding2.root)
+                    .setCancelable(true)
+
+                // Mostrar el diálogo
+                val dialog2 = builder.create()
+                dialog2.window?.setBackgroundDrawableResource(android.R.color.transparent)
+                dialog2.show()
+
+                dialogBinding2.apply {
+                    nombreEvento.setText(evento.nombre)
+                    precioEvento.setText(evento.precio.toString())
+                    descripcionEvento.setText(evento.descripcion)
+                    aforoEvento.setText(evento.aforo.toString())
+                    fechaEvento.setText(evento.fecha)
+
+                    Glide.with(holder.itemView.context)
+                        .load(evento.imagen)
+                        .into(addImagenEvento)
+
+                    //Abrimos la galeria si pulsamos en la imagen
+                    addImagenEvento.setOnClickListener {
+                        eventsAct.openGallery { uri ->
+                            url = uri
+                            addImagenEvento.setImageURI(url)
+                        }
+                    }
+
+                    addEvento.setOnClickListener {
+                        val nombre = nombreEvento.text.toString()
+                        val precio = precioEvento.text.toString()
+                        val descripcion = descripcionEvento.text.toString()
+                        val aforo = aforoEvento.text.toString()
+                        val fecha = fechaEvento.text.toString()
+
+                        if (nombre.isNotEmpty() && precio.isNotEmpty() && descripcion.isNotEmpty() && aforo.isNotEmpty() && fecha.isNotEmpty()) {
+                            val updatedEvento = Evento(
+                                evento.id,
+                                nombre,
+                                precio = precio.toDouble(),
+                                descripcion = descripcion,
+                                aforo = aforo.toInt(),
+                            )
+
+                            // Si se seleccionó una nueva imagen, la subimos a Appwrite, si no, mantenemos la URL actual
+                            if (url != null) {
+                                uploadImageToAppwrite()
+                            } else {
+                                // Mantener la imagen original en Firebase
+                                updatedEvento.imagen = evento.imagen
+                                refBD.child("cartas").child(evento.id).setValue(updatedEvento)
+                                    .addOnSuccessListener {
+                                        Toast.makeText(
+                                            eventsAct,
+                                            "Carta actualizada con éxito",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(
+                                            eventsAct,
+                                            "Error al actualizar carta",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                            }
+                        } else {
+                            Toast.makeText(
+                                eventsAct,
+                                "Por favor completa todos los campos",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        dialog2.dismiss()
+                        dialog.dismiss()
+                    }
+                }
+
+
+
+
+
 
             }
-
-
-
+            dialogBinding.verParticipantesBtn.setOnClickListener {
+                mostrarBottomSheetDialogParticipantes()
+            }
         }
-
-
     }
 
     override fun getItemCount(): Int = displayedList.size
@@ -163,6 +273,69 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
         }
         val dialog = builder.create()
         dialog.show()
+    }
+    private fun mostrarBottomSheetDialogParticipantes() {
+        val builder = AlertDialog.Builder(recyclerPadre.context)
+            builder.setTitle("Participantes de " + evento.nombre)
+            builder.setMessage(evento.participantes.toString())
+
+            builder.setPositiveButton("Vale") { dialog, _ ->
+                dialog.dismiss()
+            }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    private fun uploadImageToAppwrite() {
+        if (url != null) {
+            scope.launch(Dispatchers.IO) {
+                try {
+                    val inputStream = eventsAct.contentResolver.openInputStream(url!!)
+                    val file = inputStream?.let { input ->
+                        val tempFile = File.createTempFile(evento.id, null)
+                        input.copyTo(tempFile.outputStream())
+                        InputFile.fromFile(tempFile)
+                    }
+
+                    if (file != null) {
+                        identificadorAppWrite = ID.unique() // Genera un identificador único para la imagen
+                        storage.createFile(
+                            bucketId = miBucketId,
+                            fileId = identificadorAppWrite,
+                            file = file
+                        )
+
+                        val avatarUrl = "https://cloud.appwrite.io/v1/storage/buckets/$miBucketId/files/$identificadorAppWrite/preview?project=$miProyectoId"
+                        val updatedEvento = Evento(
+                            evento.id,
+                            evento.nombre,
+                            evento.descripcion,
+                            evento.fecha,
+                            evento.aforo,
+                            evento.precio,
+                            avatarUrl,
+                        )
+
+                        refBD.child("carta").child(evento.id).setValue(updatedEvento)
+
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(eventsAct, "Carta actualizada con éxito", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(eventsAct, "Error al subir la imagen", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(eventsAct, "Error al procesar la imagen", Toast.LENGTH_SHORT).show()
+                    }
+                    Log.e("UploadError", "Error al subir la imagen: ${e.message}")
+                }
+            }
+        } else {
+            Toast.makeText(eventsAct, "No se seleccionó una imagen", Toast.LENGTH_SHORT).show()
+        }
     }
 
 }
