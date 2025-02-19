@@ -15,4 +15,5 @@
     <color name="gris_neutro">#979494</color>
     <color name="gris_claro">#D1D1D1</color>
     <color name="transparente_mio">#40000000</color>
+    <color name="transparente_mio_blanco">#90ffffff</color>
 </resources>

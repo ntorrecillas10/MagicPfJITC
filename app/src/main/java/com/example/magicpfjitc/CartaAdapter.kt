@@ -6,8 +6,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat.getDrawable
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.magicpfjitc.databinding.DialogCartaBinding
@@ -21,7 +24,13 @@ import io.appwrite.services.Storage
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import io.appwrite.ID
+import io.appwrite.models.InputFile
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: RecyclerView, private val mainAct: MainActivity) :
     RecyclerView.Adapter<CartaAdapter.CartaViewHolder>() {
@@ -38,6 +47,8 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
     private lateinit var refBD: DatabaseReference
     private lateinit var auth: FirebaseAuth
     private var url: Uri? = null // Variable para almacenar la URL de la imagen seleccionada
+    private lateinit var carta: Carta
+    private lateinit var identificadorAppWrite: String
 
     // Configuración Appwrite
     private val scope = MainScope()
@@ -49,7 +60,7 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onBindViewHolder(holder: CartaViewHolder, position: Int) {
-        val carta = displayedList[position]
+        carta = displayedList[position]
         holder.binding.nombreCarta.text = carta.nombre
         holder.binding.precioCarta.text = carta.precio.toString()
         holder.binding.main.background = when (carta.tipo) {
@@ -164,21 +175,21 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
 
             dialogBinding.editBtn.setOnClickListener {
                 //Abrimos el dialog
-                val dialogBinding =
+                val dialogBinding2 =
                     DialogCartaEditarBinding.inflate(LayoutInflater.from(holder.itemView.context))
 
 
                 // Crear el AlertDialog y establecer el layout inflado con el Binding
                 val builder = android.app.AlertDialog.Builder(holder.itemView.context)
-                builder.setView(dialogBinding.root)
+                builder.setView(dialogBinding2.root)
                     .setCancelable(true)
 
                 // Mostrar el diálogo
-                val dialog = builder.create()
-                dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-                dialog.show()
+                val dialog2 = builder.create()
+                dialog2.window?.setBackgroundDrawableResource(android.R.color.transparent)
+                dialog2.show()
 
-                dialogBinding.apply {
+                dialogBinding2.apply {
                     nombreCarta.setText(carta.nombre)
                     precioCarta.setText(carta.precio.toString())
                     descripcionCarta.setText(carta.descripcion)
@@ -203,9 +214,83 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
                         }
                     }
 
+                    val spinner = dialogBinding2.tipoCarta
+                    val items = arrayOf("Blanco", "Rojo", "Azul", "Negro", "Verde")
+                    val adapter = ArrayAdapter(holder.itemView.context, android.R.layout.simple_spinner_item, items)
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    spinner.adapter = adapter
+                    spinner.setSelection(when (carta.tipo) {
+                        "Blanco" -> 0
+                        "Rojo" -> 1
+                        "Azul" -> 2
+                        "Negro" -> 3
+                        else -> 4
+                    })
+
+                    spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                        @SuppressLint("UseCompatLoadingForDrawables")
+                        override fun onItemSelected(
+                            parent: AdapterView<*>?,
+                            view: View?,
+                            position: Int,
+                            id: Long
+                        ) {
+                            val selectedItem = parent?.getItemAtPosition(position).toString()
+                            //Hacemos un switch para cambiar el color del fondo de la carta segun lo seleccionado en el Spinner
+                            when (selectedItem) {
+                                "Blanco" -> dialogBinding2.addImagenCarta.background =
+                                    getDrawable(holder.itemView.context,R.drawable.fondo_transparente_bordes_blancos)
+
+                                "Rojo" -> dialogBinding2.addImagenCarta.background =
+                                    getDrawable(holder.itemView.context,R.drawable.fondo_transparente_bordes_rojos)
+
+                                "Azul" -> dialogBinding2.addImagenCarta.background =
+                                    getDrawable(holder.itemView.context,R.drawable.fondo_transparente_bordes_azul)
+
+                                "Negro" -> dialogBinding2.addImagenCarta.background =
+                                    getDrawable(holder.itemView.context,R.drawable.fondo_transparente_bordes_negro)
+
+                                "Verde" -> dialogBinding2.addImagenCarta.background =
+                                    getDrawable(holder.itemView.context,R.drawable.fondo_transparente_bordes_verdes)
+                            }
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {
+                            TODO("Not yet implemented")
+                        }
+
+
+                    }
+                    addCarta.setOnClickListener{
+                        val nombre = nombreCarta.text.toString()
+                        val precio = precioCarta.text.toString()
+                        val descripcion = descripcionCarta.text.toString()
+                        val tipo = spinner.selectedItem.toString()
+
+                        if (nombre.isNotEmpty() && precio.isNotEmpty() && descripcion.isNotEmpty()) {
+                            val updatedCarta = Carta(carta.id, nombre, precio = precio.toDouble(), descripcion = descripcion, tipo = tipo)
+
+                            // Si se seleccionó una nueva imagen, la subimos a Appwrite, si no, mantenemos la URL actual
+                            if (url != null) {
+                                uploadImageToAppwrite()
+                            } else {
+                                // Mantener la imagen original en Firebase
+                                updatedCarta.imagenUrl = carta.imagenUrl
+                                refBD.child("cartas").child(carta.id).setValue(updatedCarta)
+                                    .addOnSuccessListener {
+                                        Toast.makeText(mainAct, "Carta actualizada con éxito", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(mainAct, "Error al actualizar carta", Toast.LENGTH_SHORT).show()
+                                    }
+                            }
+                        } else {
+                            Toast.makeText(mainAct, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show()
+                        }
+                        dialog2.dismiss()
+                        dialog.dismiss()
+                    }
                 }
-
-
             }
 
 
@@ -240,5 +325,54 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
     fun updateList(newList: List<Carta>) {
         displayedList = newList
         notifyDataSetChanged()
+    }
+    private fun uploadImageToAppwrite() {
+        if (url != null) {
+            scope.launch(Dispatchers.IO) {
+                try {
+                    val inputStream = mainAct.contentResolver.openInputStream(url!!)
+                    val file = inputStream?.let { input ->
+                        val tempFile = File.createTempFile(carta.id, null)
+                        input.copyTo(tempFile.outputStream())
+                        InputFile.fromFile(tempFile)
+                    }
+
+                    if (file != null) {
+                        identificadorAppWrite = ID.unique() // Genera un identificador único para la imagen
+                        storage.createFile(
+                            bucketId = miBucketId,
+                            fileId = identificadorAppWrite,
+                            file = file
+                        )
+
+                        val avatarUrl = "https://cloud.appwrite.io/v1/storage/buckets/$miBucketId/files/$identificadorAppWrite/preview?project=$miProyectoId"
+                        val updatedCarta =  Carta(
+                            carta.id,
+                            carta.nombre,
+                            avatarUrl,
+                            carta.precio,
+                            carta.descripcion,
+                        )
+
+                        refBD.child("carta").child(carta.id).setValue(updatedCarta)
+
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(mainAct, "Carta actualizada con éxito", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(mainAct, "Error al subir la imagen", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(mainAct, "Error al procesar la imagen", Toast.LENGTH_SHORT).show()
+                    }
+                    Log.e("UploadError", "Error al subir la imagen: ${e.message}")
+                }
+            }
+        } else {
+            Toast.makeText(mainAct, "No se seleccionó una imagen", Toast.LENGTH_SHORT).show()
+        }
     }
 }

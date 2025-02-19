@@ -138,6 +138,13 @@ class CartaSolicitadaAdapter(
 
                         dialog.dismiss()
                     }
+                    rechazarSolicitudBtn.setOnClickListener {
+                        refBD.child("solicitudes").child(carta.id).removeValue()
+                        refBD.child("cartas").child(carta.id).child("comprador").setValue("")
+                        refBD.child("cartas").child(carta.id).child("disponible").setValue(true)
+                        refBD.child("cartas").child(carta.id).child("en_proceso").setValue(false)
+                        dialog.dismiss()
+                    }
 
                     // Cargar información en el diálogo
                     mostrarNombreCarta.text = carta.nombre
