@@ -10,6 +10,6 @@ class Evento(
     var aforo: Int = 0,
     var precio: Double = 0.0,
     var imagen: String = "",
-    var participantes: MutableList<Usuario> = mutableListOf(),
+    var participantes: MutableList<String> = mutableListOf(),
     var fecha_creacion: String = dateFormat.format(Date())
 )

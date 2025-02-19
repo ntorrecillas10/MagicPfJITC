@@ -4,6 +4,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.magicpfjitc.CartaAdapter.CartaViewHolder
@@ -33,6 +35,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
     private lateinit var miProyectoId: String
     private lateinit var refBD: DatabaseReference
     private lateinit var auth: FirebaseAuth
+    private lateinit var evento: Evento
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventoViewHolder {
         val binding = ItemEventoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -40,7 +43,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
     }
 
     override fun onBindViewHolder(holder: EventoAdapter.EventoViewHolder, position: Int) {
-        val evento = displayedList[position]
+        evento = displayedList[position]
         holder.binding.nombreEvento.text = evento.nombre
         holder.binding.precioEvento.text = evento.precio.toString()
 
@@ -107,6 +110,14 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
             val dialog = builder.create()
             dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
             dialog.show()
+
+            dialogBinding.entrarBtn.setOnClickListener {
+                mostrarBottomSheetDialogEventos()
+
+            }
+
+
+
         }
 
 
@@ -121,6 +132,37 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
     fun updateList(newList: List<Evento>) {
         displayedList = newList
         notifyDataSetChanged()
+    }
+    private fun mostrarBottomSheetDialogEventos() {
+        val builder = AlertDialog.Builder(recyclerPadre.context)
+        if (evento.participantes.contains(auth.currentUser?.email.toString())) {
+            builder.setTitle("Ya estas apuntado al evento " + evento.nombre)
+
+            builder.setPositiveButton("Vale") { dialog, _ ->
+                dialog.dismiss()
+            }
+        } else{
+            builder.setTitle("Deseas apuntarte al evento " + evento.nombre + "?")
+
+            builder.setPositiveButton("Si") { dialog, _ ->
+                evento.participantes.add(auth.currentUser?.email.toString())
+                refBD.child("eventos").child(evento.id).child("participantes")
+                    .setValue(evento.participantes)
+                Toast.makeText(
+                    recyclerPadre.context,
+                    "Se te ha añadido al evento " + evento.nombre,
+                    Toast.LENGTH_SHORT
+                ).show()
+                dialog.dismiss()
+            }
+
+            builder.setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        }
+        val dialog = builder.create()
+        dialog.show()
     }
 
 }

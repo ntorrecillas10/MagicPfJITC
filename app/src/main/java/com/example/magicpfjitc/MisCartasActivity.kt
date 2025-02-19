@@ -32,7 +32,7 @@ class MisCartasActivity : AppCompatActivity() {
         setContentView(binding.root)
         cartasList = mutableListOf()
         binding.recyclerCartas.layoutManager = GridLayoutManager(this, 3)
-        cartaAdapter = CartaSolicitadaAdapter(cartasList, binding.recyclerCartas)
+        cartaAdapter = CartaSolicitadaAdapter(cartasList, binding.recyclerCartas,CarritoCartasActivity())
         binding.recyclerCartas.adapter = cartaAdapter
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

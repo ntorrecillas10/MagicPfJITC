@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -64,6 +65,9 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
             }
         }
+        binding.passOlvidada.setOnClickListener {
+            mostrarBottomSheetDialog()
+        }
 
 
     }
@@ -74,6 +78,17 @@ class LoginActivity : AppCompatActivity() {
             putString("user_email", email)
             apply()
         }
+    }
+    private fun mostrarBottomSheetDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Usuarios y contraseñas:")
+        builder.setMessage("Admin\nCorreo: nacho@gmail.com\nContraseña: nachonacho\nUsuario normal:\nCorreo: hola@gmail.com\nContraseña: holahola")
+
+        builder.setPositiveButton("Vale") { dialog, _ ->
+            dialog.dismiss()
+        }
+        val dialog = builder.create()
+        dialog.show()
     }
 
 }

@@ -1,8 +1,13 @@
 package com.example.magicpfjitc
 
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -13,6 +18,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -24,6 +33,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -65,8 +75,13 @@ class MainActivity : AppCompatActivity() {
                         admin = snapshot.getValue(Boolean::class.java) ?: false
                         if (admin) {
                             binding.btnFlotante.visibility = View.VISIBLE
+                            binding.btn4.visibility = View.GONE
                         } else {
                             binding.btnFlotante.visibility = View.GONE
+                            binding.btn4.setOnClickListener {
+                                val intent = Intent(this@MainActivity, MisCartasActivity::class.java)
+                                startActivity(intent)
+                            }
                         }
                     }
 
@@ -126,7 +141,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val spinner = binding.spinnerFiltros
-        val items = arrayOf("Filtrar lista de cartas","Precio menor a mayor", "Precio menor a mayor", "Alfabeticamente", "Por tipo")
+        val items = arrayOf("Filtrar lista de cartas","Precio menor a mayor", "Precio menor a mayor", "Alfabeticamente", "Blancas", "Rojas", "Azules", "Negras", "Verdes")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,items)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
@@ -140,13 +155,21 @@ class MainActivity : AppCompatActivity() {
                 id: Long
             ) {
                 val selectedItem = parent?.getItemAtPosition(position).toString()
+                var cartaListUpdated = cartasList
                 when (selectedItem) {
                     items[0] -> cartasList.sortBy { it.fecha_carta }
                     items[1] -> cartasList.sortBy { it.precio }
                     items[2] -> cartasList.sortByDescending { it.precio }
                     items[3] -> cartasList.sortBy { it.nombre }
-                    items[4] -> cartasList.sortBy { it.tipo }
+                    items[4] -> cartaListUpdated = cartasList.filter { it.tipo == "Blanco" }.toMutableList()
+                    items[5] -> cartaListUpdated = cartasList.filter { it.tipo == "Rojo" }.toMutableList()
+                    items[6] -> cartaListUpdated = cartasList.filter { it.tipo == "Azul" }.toMutableList()
+                    items[7] -> cartaListUpdated = cartasList.filter { it.tipo == "Negro" }.toMutableList()
+                    items[8] -> cartaListUpdated = cartasList.filter { it.tipo == "Verde" }.toMutableList()
                 }
+                cartaAdapter.updateList(cartaListUpdated)
+                Log.d("ListaCartas", cartaListUpdated.toString())
+                Log.d("items", items[position])
                 cartaAdapter.notifyDataSetChanged()
             }
 
@@ -183,14 +206,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
-
-        if (!admin) {
-            binding.btn4.setOnClickListener {
-                val intent = Intent(this, MisCartasActivity::class.java)
-                startActivity(intent)
-            }
-        }
 
     }
 
@@ -232,4 +247,6 @@ class MainActivity : AppCompatActivity() {
         imageSelectionCallback = callback
         urlGaleria.launch("image/*")
     }
+
+
 }

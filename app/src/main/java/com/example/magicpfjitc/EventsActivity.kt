@@ -63,8 +63,13 @@ class EventsActivity : AppCompatActivity() {
                         admin = snapshot.getValue(Boolean::class.java) ?: false
                         if (admin) {
                             binding.btnFlotante.visibility = View.VISIBLE
+                            binding.btn4.visibility = View.GONE
                         } else {
                             binding.btnFlotante.visibility = View.GONE
+                            binding.btn4.setOnClickListener {
+                                val intent = Intent(this@EventsActivity, MisCartasActivity::class.java)
+                                startActivity(intent)
+                            }
                         }
                     }
 
@@ -79,7 +84,9 @@ class EventsActivity : AppCompatActivity() {
                     eventosList.clear()  // Limpiar la lista antes de añadir los nuevos datos
                     for (cartaSnapshot in snapshot.children) {
                         val evento = cartaSnapshot.getValue(Evento::class.java)
-                        evento?.let { eventosList.add(it) }
+                        if (evento?.aforo != evento?.participantes?.size) {
+                            evento?.let { eventosList.add(it) }
+                        }
                     }
                     Log.d("Hola", eventosList.size.toString())
                     eventoAdapter.notifyDataSetChanged()  // Notificar que los datos han cambiado
@@ -89,6 +96,49 @@ class EventsActivity : AppCompatActivity() {
                     Log.e("EventsActivity", "Error al obtener las cartas", error.toException())
                 }
             })
+
+        val spinner = binding.spinner
+        val items = arrayOf("TODOS LOS EVENTOS", "MIS EVENTOS")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, items)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            @SuppressLint("UseCompatLoadingForDrawables")
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val selectedItem = parent?.getItemAtPosition(position).toString()
+                //Hacemos un switch para cambiar el color del fondo de la carta segun lo seleccionado en el Spinner
+                when (selectedItem) {
+                        "TODOS LOS EVENTOS" -> {
+                            eventoAdapter.updateList(eventosList)
+                        }
+                        "MIS EVENTOS" -> {
+                            val email = auth.currentUser?.email
+                            email?.let { userId ->
+                                Log.d("EventActivity", "User ID: $userId")
+                                val misEventos = eventosList.filter { evento ->
+                                    evento.participantes.contains(userId)
+                                }
+                                eventoAdapter.updateList(misEventos)
+                            }
+                        }
+                    }
+                }
+
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+
+
+        }
+
+
 
 
         binding.fragment.setOnClickListener {
@@ -143,15 +193,6 @@ class EventsActivity : AppCompatActivity() {
         binding.btn3.setOnClickListener {
             val intent = Intent(this, CarritoCartasActivity::class.java)
             startActivity(intent)
-        }
-
-
-
-        if (!admin) {
-            binding.btn4.setOnClickListener {
-                val intent = Intent(this, MisCartasActivity::class.java)
-                startActivity(intent)
-            }
         }
 
     }

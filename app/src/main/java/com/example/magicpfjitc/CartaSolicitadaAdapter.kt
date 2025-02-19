@@ -1,29 +1,34 @@
 package com.example.magicpfjitc
 
 import android.annotation.SuppressLint
-import android.content.Intent
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.magicpfjitc.databinding.DialogCartaBinding
 import com.example.magicpfjitc.databinding.DialogCartaEnprocesoBinding
 import com.example.magicpfjitc.databinding.ItemCartaBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import io.appwrite.Client
-import io.appwrite.services.Storage
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+private const val CHANNEL_ID = "canal_notificaciones"  // ID del canal
+private const val NOTIFICATION_ID = 1  // ID de la notificación
 
 class CartaSolicitadaAdapter(
     originalList: List<Carta>,
-    private val recyclerPadre: RecyclerView
+    private val recyclerPadre: RecyclerView, private val carritoActivity: CarritoCartasActivity
 ) : RecyclerView.Adapter<CartaSolicitadaAdapter.CartaViewHolder>() {
 
     private var displayedList: List<Carta> = originalList
@@ -58,6 +63,13 @@ class CartaSolicitadaAdapter(
     override fun onBindViewHolder(holder: CartaViewHolder, position: Int) {
         val carta = displayedList[position]
         val context = holder.itemView.context
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(carritoActivity, android.Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(carritoActivity, arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 101)
+            }
+        }
+
 
         with(holder.binding) {
             nombreCarta.text = carta.nombre
@@ -99,6 +111,10 @@ class CartaSolicitadaAdapter(
                         rechazarSolicitudBtn.visibility = View.GONE
                         comprador.visibility = View.GONE
                     }
+                    if (carta.comprador != "" && carta.disponible) {
+                        deleteBtn.visibility = View.GONE
+                        enviarSolicitudBtn.visibility = View.GONE
+                    }
 
                     // Configuración de botones
                     deleteBtn.setOnClickListener {
@@ -124,6 +140,13 @@ class CartaSolicitadaAdapter(
                             .addOnSuccessListener {
                                 Log.d("CartaAdapter", "Solicitud enviada correctamente")
                                 refBD.child("cartas").child(carta.id).child("en_proceso").setValue(true)
+
+                                mostrarNotificacionLocal(
+                                    context,
+                                    "Nueva Solicitud",
+                                    "Se ha enviado una solicitud para la carta ${carta.nombre} al admin"
+                                )
+
                                 dialog.dismiss()
                             }
                             .addOnFailureListener { e ->
@@ -135,6 +158,11 @@ class CartaSolicitadaAdapter(
                         refBD.child("solicitudes").child(carta.id).child("estado").setValue("Aceptada")
                         refBD.child("cartas").child(carta.id).child("en_proceso").setValue(false)
                         refBD.child("cartas").child(carta.id).child("disponible").setValue(true)
+                        mostrarNotificacionLocal(
+                            context,
+                            "Solicitud aceptada",
+                            "Se ha aceptado la solicitud de la carta ${carta.nombre}"
+                        )
 
                         dialog.dismiss()
                     }
@@ -181,4 +209,43 @@ class CartaSolicitadaAdapter(
         displayedList = newList
         notifyDataSetChanged()
     }
+    // Función para crear y mostrar una notificación local
+    fun mostrarNotificacionLocal(context: Context, titulo: String, mensaje: String) {
+        // Crear canal de notificación en API 26+ (Android Oreo y superior)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val nombre = "Notificaciones de la App"
+            val descripcionText = "Canal para notificaciones locales"
+            val importancia = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, nombre, importancia).apply {
+                description = descripcionText
+            }
+
+            // Registrar el canal con el sistema
+            val notificationManager: NotificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        // Verificar si tenemos permiso de notificación en Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ActivityCompat.checkSelfPermission(
+                context, android.Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED) {
+            return  // Si no hay permiso, no enviamos la notificación
+        }
+
+        // Construir la notificación
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.btn_star_big_on)  // Ícono de notificación
+            .setContentTitle(titulo)
+            .setContentText(mensaje)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+        // Mostrar la notificación
+        with(NotificationManagerCompat.from(context)) {
+            notify(NOTIFICATION_ID, builder.build())
+        }
+    }
+
 }

@@ -1,14 +1,10 @@
 package com.example.magicpfjitc
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -38,7 +34,7 @@ class CarritoCartasActivity : AppCompatActivity() {
         setContentView(binding.root)
         cartasList = mutableListOf()
         binding.recyclerCartas.layoutManager = GridLayoutManager(this, 3)
-        cartaAdapter = CartaSolicitadaAdapter(cartasList, binding.recyclerCartas)
+        cartaAdapter = CartaSolicitadaAdapter(cartasList, binding.recyclerCartas, this)
         binding.recyclerCartas.adapter = cartaAdapter
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -61,6 +57,7 @@ class CarritoCartasActivity : AppCompatActivity() {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         admin = snapshot.getValue(Boolean::class.java) ?: false
                         if (admin) {
+                            binding.btn4.visibility = View.GONE
 
                             FirebaseDatabase.getInstance().reference.child("cartas")
                                 .addValueEventListener(object : ValueEventListener {
@@ -83,6 +80,10 @@ class CarritoCartasActivity : AppCompatActivity() {
                                 })
 
                         } else {
+                            binding.btn4.setOnClickListener {
+                            val intent = Intent(this@CarritoCartasActivity, MisCartasActivity::class.java)
+                            startActivity(intent)
+                        }
 
                             FirebaseDatabase.getInstance().reference.child("cartas")
                                 .addValueEventListener(object : ValueEventListener {
