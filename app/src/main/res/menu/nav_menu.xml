@@ -1,14 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/perfil_btn"
-        android:title="Cuenta" />
+        android:id="@+id/inicio_btn"
+        android:title="@string/inicio" />
     <item
-        android:id="@+id/settings_btn"
-        android:title="Settings" />
+        android:id="@+id/cuenta_btn"
+        android:title="@string/cuenta" />
     <item
         android:id="@+id/author_btn"
-        android:title="Author" />
+        android:title="@string/author" />
     <item
         android:id="@+id/logout_btn"
-        android:title="Cerrar sesión" />
+        android:title="@string/cerrar_sesi_n" />
 </menu>

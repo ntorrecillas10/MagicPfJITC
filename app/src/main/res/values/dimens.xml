@@ -4,4 +4,5 @@
     <dimen name="_25sp">25sp</dimen>
     <dimen name="_40sp">40sp</dimen>
     <dimen name="_15sp">15sp</dimen>
+    <dimen name="_30sp">30sp</dimen>
 </resources>

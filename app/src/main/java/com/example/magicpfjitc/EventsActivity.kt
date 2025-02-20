@@ -150,25 +150,23 @@ class EventsActivity : AppCompatActivity() {
 
 
 
-
         binding.fragment.setOnClickListener {
             // Abre el menú lateral al pulsar el botón
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-//                R.id.perfil_btn -> {
-//                    val intent = Intent(this, PerfilActivity::class.java)
-//                    startActivity(intent)
-//                }
-//                R.id.settings_btn -> {
-//                    val intent = Intent(this, SettingsActivity::class.java)
-//                    startActivity(intent)
-//                }
+                R.id.inicio_btn -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.cuenta_btn -> {
+                    val intent = Intent(this, CuentaActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.author_btn -> {
                     mostrarBottomSheetDialog()
                 }
-
                 R.id.logout_btn -> {
                     auth.signOut()
                     val intent = Intent(this, LoginActivity::class.java)

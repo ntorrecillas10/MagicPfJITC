@@ -32,7 +32,7 @@ class MisCartasActivity : AppCompatActivity() {
         setContentView(binding.root)
         cartasList = mutableListOf()
         binding.recyclerCartas.layoutManager = GridLayoutManager(this, 3)
-        cartaAdapter = CartaSolicitadaAdapter(cartasList, binding.recyclerCartas,CarritoCartasActivity())
+        cartaAdapter = CartaSolicitadaAdapter(cartasList, binding.recyclerCartas,this)
         binding.recyclerCartas.adapter = cartaAdapter
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -68,18 +68,17 @@ class MisCartasActivity : AppCompatActivity() {
         }
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-//                R.id.perfil_btn -> {
-//                    val intent = Intent(this, PerfilActivity::class.java)
-//                    startActivity(intent)
-//                }
-//                R.id.settings_btn -> {
-//                    val intent = Intent(this, SettingsActivity::class.java)
-//                    startActivity(intent)
-//                }
+                R.id.inicio_btn -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.cuenta_btn -> {
+                    val intent = Intent(this, CuentaActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.author_btn -> {
                     mostrarBottomSheetDialog()
                 }
-
                 R.id.logout_btn -> {
                     auth.signOut()
                     val intent = Intent(this, LoginActivity::class.java)

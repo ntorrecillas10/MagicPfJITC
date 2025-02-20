@@ -28,4 +28,13 @@
     <string name="carta">CARTA</string>
     <string name="_10dolares">10$</string>
     <string name="evento">EVENTO</string>
+    <string name="mi_cuenta">MI CUENTA</string>
+    <string name="tucorreoelectronico">tucorreoelectronico</string>
+    <string name="tunombre">tunombre</string>
+    <string name="n_de_cartas_en_propiedad">Nº de Cartas en propiedad</string>
+    <string name="volver">Volver</string>
+    <string name="inicio">Inicio</string>
+    <string name="cuenta">Cuenta</string>
+    <string name="author">Author</string>
+    <string name="cerrar_sesi_n">Cerrar sesión</string>
 </resources>

@@ -28,7 +28,7 @@ private const val NOTIFICATION_ID = 1  // ID de la notificación
 
 class CartaSolicitadaAdapter(
     originalList: List<Carta>,
-    private val recyclerPadre: RecyclerView, private val carritoActivity: CarritoCartasActivity
+    private val recyclerPadre: RecyclerView, private val carritoActivity: Context
 ) : RecyclerView.Adapter<CartaSolicitadaAdapter.CartaViewHolder>() {
 
     private var displayedList: List<Carta> = originalList
@@ -64,15 +64,13 @@ class CartaSolicitadaAdapter(
     override fun onBindViewHolder(holder: CartaViewHolder, position: Int) {
         val carta = displayedList[position]
         val context = holder.itemView.context
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                    carritoActivity,
-                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                    101
-                )
-            }
+        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                context as CarritoCartasActivity,
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                101
+            )
         }
 
 
@@ -95,125 +93,144 @@ class CartaSolicitadaAdapter(
             if (carta.en_proceso && !admin) {
                 main.background = context.getDrawable(R.drawable.fondo_turquesa_negro)
                 return
-            }
+            } else {
 
-            main.setOnClickListener {
-                val dialogBinding = DialogCartaEnprocesoBinding.inflate(LayoutInflater.from(context))
-                val dialog = android.app.AlertDialog.Builder(context)
-                    .setView(dialogBinding.root)
-                    .setCancelable(true)
-                    .create().apply {
-                        window?.setBackgroundDrawableResource(android.R.color.transparent)
-                    }
-
-                dialog.show()
-
-                with(dialogBinding) {
-                    if (admin) {
-                        deleteBtn.visibility = View.GONE
-                        enviarSolicitudBtn.visibility = View.GONE
-                    } else  {
-                        aceptarSolicitudBtn.visibility = View.GONE
-                        rechazarSolicitudBtn.visibility = View.GONE
-                        comprador.visibility = View.GONE
-                    }
-                    if (carta.comprador != "" && carta.disponible) {
-                        deleteBtn.visibility = View.GONE
-                        enviarSolicitudBtn.visibility = View.GONE
-                    }
-
-                    // Configuración de botones
-                    deleteBtn.setOnClickListener {
-                        refBD
-                            .child("tienda").child("cartas").child(carta.id).apply {
-                            child("disponible").setValue(true)
-                            child("comprador").setValue("")
+                main.setOnClickListener {
+                    val dialogBinding =
+                        DialogCartaEnprocesoBinding.inflate(LayoutInflater.from(context))
+                    val dialog = android.app.AlertDialog.Builder(context)
+                        .setView(dialogBinding.root)
+                        .setCancelable(true)
+                        .create().apply {
+                            window?.setBackgroundDrawableResource(android.R.color.transparent)
                         }
-                        Log.d("CartaAdapter", "Carta eliminada")
-                        dialog.dismiss()
-                    }
 
-                    enviarSolicitudBtn.setOnClickListener {
+                    dialog.show()
 
-                        val solicitudNueva = SolicitudCompra(
-                            carta.id,
-                            auth.currentUser!!.uid,
-                            carta.precio,
-                            "Pendiente",
-                        )
+                    with(dialogBinding) {
+                        if (admin) {
+                            deleteBtn.visibility = View.GONE
+                            enviarSolicitudBtn.visibility = View.GONE
+                        } else {
+                            aceptarSolicitudBtn.visibility = View.GONE
+                            rechazarSolicitudBtn.visibility = View.GONE
+                            comprador.visibility = View.GONE
+                        }
+                        if (carta.comprador != "" && carta.disponible) {
+                            deleteBtn.visibility = View.GONE
+                            enviarSolicitudBtn.visibility = View.GONE
+                        }
+
+                        // Configuración de botones
+                        deleteBtn.setOnClickListener {
+                            refBD
+                                .child("tienda").child("cartas").child(carta.id).apply {
+                                    child("disponible").setValue(true)
+                                    child("comprador").setValue("")
+                                }
+                            Log.d("CartaAdapter", "Carta eliminada")
+                            dialog.dismiss()
+                        }
+
+                        enviarSolicitudBtn.setOnClickListener {
+
+                            val solicitudNueva = SolicitudCompra(
+                                carta.id,
+                                auth.currentUser!!.uid,
+                                carta.precio,
+                                "Pendiente",
+                            )
+
+                            refBD
+                                .child("tienda").child("solicitudes").child(carta.id)
+                                .setValue(solicitudNueva)
+                                .addOnSuccessListener {
+                                    Log.d("CartaAdapter", "Solicitud enviada correctamente")
+                                    refBD
+                                        .child("tienda").child("cartas").child(carta.id)
+                                        .child("en_proceso").setValue(true)
+
+                                    mostrarNotificacionLocal(
+                                        context,
+                                        "Nueva Solicitud",
+                                        "Se ha enviado una solicitud para la carta ${carta.nombre} al admin"
+                                    )
+
+                                    dialog.dismiss()
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e(
+                                        "CartaAdapter",
+                                        "Error al enviar solicitud: ${e.message}",
+                                        e
+                                    )
+                                }
+                        }
+
+                        aceptarSolicitudBtn.setOnClickListener {
+                            refBD
+                                .child("tienda").child("solicitudes").child(carta.id)
+                                .child("estado").setValue("Aceptada")
+                            refBD
+                                .child("tienda").child("cartas").child(carta.id).child("en_proceso")
+                                .setValue(false)
+                            refBD
+                                .child("tienda").child("cartas").child(carta.id).child("disponible")
+                                .setValue(true)
+                            mostrarNotificacionLocal(
+                                context,
+                                "Solicitud aceptada",
+                                "Se ha aceptado la solicitud de la carta ${carta.nombre}"
+                            )
+
+                            dialog.dismiss()
+                        }
+                        rechazarSolicitudBtn.setOnClickListener {
+                            refBD
+                                .child("tienda").child("solicitudes").child(carta.id).removeValue()
+                            refBD
+                                .child("tienda").child("cartas").child(carta.id).child("comprador")
+                                .setValue("")
+                            refBD
+                                .child("tienda").child("cartas").child(carta.id).child("disponible")
+                                .setValue(true)
+                            refBD
+                                .child("tienda").child("cartas").child(carta.id).child("en_proceso")
+                                .setValue(false)
+                            dialog.dismiss()
+                        }
+
+                        // Cargar información en el diálogo
+                        mostrarNombreCarta.text = carta.nombre
+                        mostrarPrecioCarta.text = "Precio: ${carta.precio}"
+                        mostrarDescripcionCarta.text = carta.descripcion
 
                         refBD
-                            .child("tienda").child("solicitudes").child(carta.id)
-                            .setValue(solicitudNueva)
-                            .addOnSuccessListener {
-                                Log.d("CartaAdapter", "Solicitud enviada correctamente")
-                                refBD
-                                    .child("tienda").child("cartas").child(carta.id).child("en_proceso").setValue(true)
-
-                                mostrarNotificacionLocal(
-                                    context,
-                                    "Nueva Solicitud",
-                                    "Se ha enviado una solicitud para la carta ${carta.nombre} al admin"
+                            .child("tienda").child("usuarios").child(carta.comprador)
+                            .child("usuario")
+                            .get()
+                            .addOnSuccessListener { snapshot ->
+                                comprador.text =
+                                    snapshot.getValue(String::class.java) ?: "Desconocido"
+                            }
+                            .addOnFailureListener { exception ->
+                                Log.e(
+                                    "CartaAdapter",
+                                    "Error al obtener el nombre de usuario",
+                                    exception
                                 )
-
-                                dialog.dismiss()
+                                comprador.text = "Error"
                             }
-                            .addOnFailureListener { e ->
-                                Log.e("CartaAdapter", "Error al enviar solicitud: ${e.message}", e)
-                            }
-                    }
 
-                    aceptarSolicitudBtn.setOnClickListener {
-                        refBD
-                            .child("tienda").child("solicitudes").child(carta.id).child("estado").setValue("Aceptada")
-                        refBD
-                            .child("tienda").child("cartas").child(carta.id).child("en_proceso").setValue(false)
-                        refBD
-                            .child("tienda").child("cartas").child(carta.id).child("disponible").setValue(true)
-                        mostrarNotificacionLocal(
-                            context,
-                            "Solicitud aceptada",
-                            "Se ha aceptado la solicitud de la carta ${carta.nombre}"
-                        )
+                        Glide.with(context).load(carta.imagenUrl).into(mostrarImagenCarta)
 
-                        dialog.dismiss()
-                    }
-                    rechazarSolicitudBtn.setOnClickListener {
-                        refBD
-                            .child("tienda").child("solicitudes").child(carta.id).removeValue()
-                        refBD
-                            .child("tienda").child("cartas").child(carta.id).child("comprador").setValue("")
-                        refBD
-                            .child("tienda").child("cartas").child(carta.id).child("disponible").setValue(true)
-                        refBD
-                            .child("tienda").child("cartas").child(carta.id).child("en_proceso").setValue(false)
-                        dialog.dismiss()
-                    }
-
-                    // Cargar información en el diálogo
-                    mostrarNombreCarta.text = carta.nombre
-                    mostrarPrecioCarta.text = "Precio: ${carta.precio}"
-                    mostrarDescripcionCarta.text = carta.descripcion
-
-                    refBD
-                        .child("tienda").child("usuarios").child(carta.comprador).child("usuario")
-                        .get()
-                        .addOnSuccessListener { snapshot ->
-                            comprador.text = snapshot.getValue(String::class.java) ?: "Desconocido"
+                        main.background = when (carta.tipo) {
+                            "Rojo" -> context.getDrawable(R.drawable.fondo_transparente_bordes_rojos)
+                            "Azul" -> context.getDrawable(R.drawable.fondo_transparente_bordes_azul)
+                            "Negro" -> context.getDrawable(R.drawable.fondo_transparente_bordes_negro)
+                            "Verde" -> context.getDrawable(R.drawable.fondo_transparente_bordes_verdes)
+                            else -> context.getDrawable(R.drawable.fondo_transparente_bordes_blancos)
                         }
-                        .addOnFailureListener { exception ->
-                            Log.e("CartaAdapter", "Error al obtener el nombre de usuario", exception)
-                            comprador.text = "Error"
-                        }
-
-                    Glide.with(context).load(carta.imagenUrl).into(mostrarImagenCarta)
-
-                    main.background = when (carta.tipo) {
-                        "Rojo" -> context.getDrawable(R.drawable.fondo_transparente_bordes_rojos)
-                        "Azul" -> context.getDrawable(R.drawable.fondo_transparente_bordes_azul)
-                        "Negro" -> context.getDrawable(R.drawable.fondo_transparente_bordes_negro)
-                        "Verde" -> context.getDrawable(R.drawable.fondo_transparente_bordes_verdes)
-                        else -> context.getDrawable(R.drawable.fondo_transparente_bordes_blancos)
                     }
                 }
             }

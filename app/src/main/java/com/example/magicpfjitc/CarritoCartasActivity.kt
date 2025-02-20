@@ -126,14 +126,14 @@ class CarritoCartasActivity : AppCompatActivity() {
         }
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-//                R.id.perfil_btn -> {
-//                    val intent = Intent(this, PerfilActivity::class.java)
-//                    startActivity(intent)
-//                }
-//                R.id.settings_btn -> {
-//                    val intent = Intent(this, SettingsActivity::class.java)
-//                    startActivity(intent)
-//                }
+                R.id.inicio_btn -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.cuenta_btn -> {
+                    val intent = Intent(this, CuentaActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.author_btn -> {
                     mostrarBottomSheetDialog()
                 }
