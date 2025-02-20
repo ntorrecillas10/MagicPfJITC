@@ -58,7 +58,6 @@ class EventsActivity : AppCompatActivity() {
         if (currentUserId != null) {
             FirebaseDatabase.getInstance().reference
                 .child("tienda")
-                .child("tienda")
                 .child("usuarios")
                 .child(currentUserId)
                 .child("admin")
@@ -71,14 +70,19 @@ class EventsActivity : AppCompatActivity() {
                         } else {
                             binding.btnFlotante.visibility = View.GONE
                             binding.btn4.setOnClickListener {
-                                val intent = Intent(this@EventsActivity, MisCartasActivity::class.java)
+                                val intent =
+                                    Intent(this@EventsActivity, MisCartasActivity::class.java)
                                 startActivity(intent)
                             }
                         }
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        Log.e("EventActivity", "Error al obtener el atributo admin", error.toException())
+                        Log.e(
+                            "EventActivity",
+                            "Error al obtener el atributo admin",
+                            error.toException()
+                        )
                     }
                 })
         }
@@ -119,21 +123,22 @@ class EventsActivity : AppCompatActivity() {
                 val selectedItem = parent?.getItemAtPosition(position).toString()
                 //Hacemos un switch para cambiar el color del fondo de la carta segun lo seleccionado en el Spinner
                 when (selectedItem) {
-                        "TODOS LOS EVENTOS" -> {
-                            eventoAdapter.updateList(eventosList)
-                        }
-                        "MIS EVENTOS" -> {
-                            val email = auth.currentUser?.email
-                            email?.let { userId ->
-                                Log.d("EventActivity", "User ID: $userId")
-                                val misEventos = eventosList.filter { evento ->
-                                    evento.participantes.contains(userId)
-                                }
-                                eventoAdapter.updateList(misEventos)
+                    "TODOS LOS EVENTOS" -> {
+                        eventoAdapter.updateList(eventosList)
+                    }
+
+                    "MIS EVENTOS" -> {
+                        val email = auth.currentUser?.email
+                        email?.let { userId ->
+                            Log.d("EventActivity", "User ID: $userId")
+                            val misEventos = eventosList.filter { evento ->
+                                evento.participantes.contains(userId)
                             }
+                            eventoAdapter.updateList(misEventos)
                         }
                     }
                 }
+            }
 
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -163,6 +168,7 @@ class EventsActivity : AppCompatActivity() {
                 R.id.author_btn -> {
                     mostrarBottomSheetDialog()
                 }
+
                 R.id.logout_btn -> {
                     auth.signOut()
                     val intent = Intent(this, LoginActivity::class.java)
@@ -231,7 +237,8 @@ class EventsActivity : AppCompatActivity() {
             if (uri != null) {
                 imageSelectionCallback?.invoke(uri)
             } else {
-                Toast.makeText(this, "No has seleccionado ninguna imagen", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "No has seleccionado ninguna imagen", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
 

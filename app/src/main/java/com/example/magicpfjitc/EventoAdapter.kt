@@ -41,7 +41,6 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
     private lateinit var miProyectoId: String
     private lateinit var refBD: DatabaseReference
     private lateinit var auth: FirebaseAuth
-    private lateinit var evento: Evento
     private var url: Uri? = null // Variable para almacenar la URL de la imagen seleccionada
     private val scope = MainScope()
     private lateinit var identificadorAppWrite: String
@@ -137,7 +136,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
             dialog.show()
 
             dialogBinding.entrarBtn.setOnClickListener {
-                mostrarBottomSheetDialogEventos()
+                mostrarBottomSheetDialogEventos(evento)
             }
             dialogBinding.editBtn.setOnClickListener {
                 //Abrimos el dialog
@@ -191,7 +190,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
 
                             // Si se seleccionó una nueva imagen, la subimos a Appwrite, si no, mantenemos la URL actual
                             if (url != null) {
-                                uploadImageToAppwrite()
+                                uploadImageToAppwrite(updatedEvento)
                             } else {
                                 // Mantener la imagen original en Firebase
                                 updatedEvento.imagen = evento.imagen
@@ -225,7 +224,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
                 }
             }
             dialogBinding.verParticipantesBtn.setOnClickListener {
-                mostrarBottomSheetDialogParticipantes()
+                mostrarBottomSheetDialogParticipantes(evento)
             }
         }
     }
@@ -240,7 +239,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
         displayedList = newList
         notifyDataSetChanged()
     }
-    private fun mostrarBottomSheetDialogEventos() {
+    private fun mostrarBottomSheetDialogEventos(evento: Evento) {
         val builder = AlertDialog.Builder(recyclerPadre.context)
         if (evento.participantes.contains(auth.currentUser?.email.toString())) {
             builder.setTitle("Ya estas apuntado al evento " + evento.nombre)
@@ -253,8 +252,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
 
             builder.setPositiveButton("Si") { dialog, _ ->
                 evento.participantes.add(auth.currentUser?.email.toString())
-                refBD
-                    .child("tienda").child("eventos").child(evento.id).child("participantes")
+                refBD.child("tienda").child("eventos").child(evento.id).child("participantes")
                     .setValue(evento.participantes)
                 Toast.makeText(
                     recyclerPadre.context,
@@ -272,7 +270,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
         val dialog = builder.create()
         dialog.show()
     }
-    private fun mostrarBottomSheetDialogParticipantes() {
+    private fun mostrarBottomSheetDialogParticipantes(evento: Evento) {
         val builder = AlertDialog.Builder(recyclerPadre.context)
             builder.setTitle("Participantes de " + evento.nombre)
             builder.setMessage(evento.participantes.toString())
@@ -284,7 +282,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
         dialog.show()
     }
 
-    private fun uploadImageToAppwrite() {
+    private fun uploadImageToAppwrite(evento: Evento) {
         if (url != null) {
             scope.launch(Dispatchers.IO) {
                 try {
@@ -314,8 +312,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
                             avatarUrl,
                         )
 
-                        refBD
-                            .child("tienda").child("evento").child(evento.id).setValue(updatedEvento)
+                        refBD.child("tienda").child("evento").child(evento.id).setValue(updatedEvento)
 
                         withContext(Dispatchers.Main) {
                             Toast.makeText(eventsAct, "Evento actualizado con éxito", Toast.LENGTH_SHORT).show()

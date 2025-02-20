@@ -32,7 +32,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: RecyclerView, private val mainAct: MainActivity) :
+class CartaAdapter(
+    originalList: List<Carta>,
+    private val recyclerPadre: RecyclerView,
+    private val mainAct: MainActivity
+) :
     RecyclerView.Adapter<CartaAdapter.CartaViewHolder>() {
 
     private var displayedList: List<Carta> = originalList // Lista que se muestra actualmente
@@ -47,7 +51,6 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
     private lateinit var refBD: DatabaseReference
     private lateinit var auth: FirebaseAuth
     private var url: Uri? = null // Variable para almacenar la URL de la imagen seleccionada
-    private lateinit var carta: Carta
     private lateinit var identificadorAppWrite: String
 
     // Configuración Appwrite
@@ -139,15 +142,18 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
             }
 
             dialogBinding.buyBtn.setOnClickListener {
-                val userCartRef = refBD
-                    .child("tienda").child("cartas")
+                val userCartRef = refBD.child("tienda").child("cartas")
                 val currentUserId = auth.currentUser?.uid ?: return@setOnClickListener
                 val context = holder.itemView.context // Obtener el contexto para mostrar el Toast
 
                 userCartRef.orderByChild("comprador").equalTo(currentUserId)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
-                            if (snapshot.childrenCount >= 3) {
+                            val cartasCompradas =
+                                snapshot.children.mapNotNull { it.getValue(Carta::class.java) }
+                                    .count { it.disponible == false } // Filtrar solo las que tienen disponible == false
+
+                            if (cartasCompradas >= 3) {
                                 Toast.makeText(
                                     context,
                                     "No puedes añadir más de 3 cartas al carrito",
@@ -158,12 +164,10 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
                             }
 
                             // Se establece la disponibilidad de la carta en false y se guarda el ID del comprador
-                            refBD
-                                .child("tienda").child("cartas").child(carta.id).child("disponible")
-                                .setValue(false)
-                            refBD
-                                .child("tienda").child("cartas").child(carta.id).child("comprador")
-                                .setValue(currentUserId)
+                            refBD.child("tienda").child("cartas").child(carta.id).apply {
+                                child("disponible").setValue(false)
+                                child("comprador").setValue(currentUserId)
+                            }
 
                             Toast.makeText(context, "Carta añadida al carrito", Toast.LENGTH_SHORT)
                                 .show()
@@ -179,6 +183,7 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
                         }
                     })
             }
+
 
             dialogBinding.editBtn.setOnClickListener {
                 //Abrimos el dialog
@@ -223,16 +228,22 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
 
                     val spinner = dialogBinding2.tipoCarta
                     val items = arrayOf("Blanco", "Rojo", "Azul", "Negro", "Verde")
-                    val adapter = ArrayAdapter(holder.itemView.context, android.R.layout.simple_spinner_item, items)
+                    val adapter = ArrayAdapter(
+                        holder.itemView.context,
+                        android.R.layout.simple_spinner_item,
+                        items
+                    )
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                     spinner.adapter = adapter
-                    spinner.setSelection(when (carta.tipo) {
-                        "Blanco" -> 0
-                        "Rojo" -> 1
-                        "Azul" -> 2
-                        "Negro" -> 3
-                        else -> 4
-                    })
+                    spinner.setSelection(
+                        when (carta.tipo) {
+                            "Blanco" -> 0
+                            "Rojo" -> 1
+                            "Azul" -> 2
+                            "Negro" -> 3
+                            else -> 4
+                        }
+                    )
 
                     spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                         @SuppressLint("UseCompatLoadingForDrawables")
@@ -246,19 +257,34 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
                             //Hacemos un switch para cambiar el color del fondo de la carta segun lo seleccionado en el Spinner
                             when (selectedItem) {
                                 "Blanco" -> dialogBinding2.addImagenCarta.background =
-                                    getDrawable(holder.itemView.context,R.drawable.fondo_transparente_bordes_blancos)
+                                    getDrawable(
+                                        holder.itemView.context,
+                                        R.drawable.fondo_transparente_bordes_blancos
+                                    )
 
                                 "Rojo" -> dialogBinding2.addImagenCarta.background =
-                                    getDrawable(holder.itemView.context,R.drawable.fondo_transparente_bordes_rojos)
+                                    getDrawable(
+                                        holder.itemView.context,
+                                        R.drawable.fondo_transparente_bordes_rojos
+                                    )
 
                                 "Azul" -> dialogBinding2.addImagenCarta.background =
-                                    getDrawable(holder.itemView.context,R.drawable.fondo_transparente_bordes_azul)
+                                    getDrawable(
+                                        holder.itemView.context,
+                                        R.drawable.fondo_transparente_bordes_azul
+                                    )
 
                                 "Negro" -> dialogBinding2.addImagenCarta.background =
-                                    getDrawable(holder.itemView.context,R.drawable.fondo_transparente_bordes_negro)
+                                    getDrawable(
+                                        holder.itemView.context,
+                                        R.drawable.fondo_transparente_bordes_negro
+                                    )
 
                                 "Verde" -> dialogBinding2.addImagenCarta.background =
-                                    getDrawable(holder.itemView.context,R.drawable.fondo_transparente_bordes_verdes)
+                                    getDrawable(
+                                        holder.itemView.context,
+                                        R.drawable.fondo_transparente_bordes_verdes
+                                    )
                             }
                         }
 
@@ -268,32 +294,51 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
 
 
                     }
-                    addCarta.setOnClickListener{
+                    addCarta.setOnClickListener {
                         val nombre = nombreCarta.text.toString()
                         val precio = precioCarta.text.toString()
                         val descripcion = descripcionCarta.text.toString()
                         val tipo = spinner.selectedItem.toString()
 
                         if (nombre.isNotEmpty() && precio.isNotEmpty() && descripcion.isNotEmpty()) {
-                            val updatedCarta = Carta(carta.id, nombre, precio = precio.toDouble(), descripcion = descripcion, tipo = tipo)
+                            val updatedCarta = Carta(
+                                carta.id,
+                                nombre,
+                                precio = precio.toDouble(),
+                                descripcion = descripcion,
+                                tipo = tipo
+                            )
 
                             // Si se seleccionó una nueva imagen, la subimos a Appwrite, si no, mantenemos la URL actual
                             if (url != null) {
-                                uploadImageToAppwrite()
+                                uploadImageToAppwrite(updatedCarta)
                             } else {
                                 // Mantener la imagen original en Firebase
                                 updatedCarta.imagenUrl = carta.imagenUrl
                                 refBD
-                                    .child("tienda").child("cartas").child(carta.id).setValue(updatedCarta)
+                                    .child("tienda").child("cartas").child(carta.id)
+                                    .setValue(updatedCarta)
                                     .addOnSuccessListener {
-                                        Toast.makeText(mainAct, "Carta actualizada con éxito", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            mainAct,
+                                            "Carta actualizada con éxito",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                     .addOnFailureListener {
-                                        Toast.makeText(mainAct, "Error al actualizar carta", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            mainAct,
+                                            "Error al actualizar carta",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                             }
                         } else {
-                            Toast.makeText(mainAct, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                mainAct,
+                                "Por favor completa todos los campos",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                         dialog2.dismiss()
                         dialog.dismiss()
@@ -334,7 +379,8 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
         displayedList = newList
         notifyDataSetChanged()
     }
-    private fun uploadImageToAppwrite() {
+
+    private fun uploadImageToAppwrite(carta: Carta) {
         if (url != null) {
             scope.launch(Dispatchers.IO) {
                 try {
@@ -346,15 +392,17 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
                     }
 
                     if (file != null) {
-                        identificadorAppWrite = ID.unique() // Genera un identificador único para la imagen
+                        identificadorAppWrite =
+                            ID.unique() // Genera un identificador único para la imagen
                         storage.createFile(
                             bucketId = miBucketId,
                             fileId = identificadorAppWrite,
                             file = file
                         )
 
-                        val avatarUrl = "https://cloud.appwrite.io/v1/storage/buckets/$miBucketId/files/$identificadorAppWrite/preview?project=$miProyectoId"
-                        val updatedCarta =  Carta(
+                        val avatarUrl =
+                            "https://cloud.appwrite.io/v1/storage/buckets/$miBucketId/files/$identificadorAppWrite/preview?project=$miProyectoId"
+                        val updatedCarta = Carta(
                             carta.id,
                             carta.nombre,
                             avatarUrl,
@@ -363,19 +411,25 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
                         )
 
                         refBD
-                            .child("tienda").child("carta").child(carta.id).setValue(updatedCarta)
+                            .child("tienda").child("cartas").child(carta.id).setValue(updatedCarta)
 
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(mainAct, "Carta actualizada con éxito", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                mainAct,
+                                "Carta actualizada con éxito cambiando la imagen",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     } else {
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(mainAct, "Error al subir la imagen", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(mainAct, "Error al subir la imagen", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(mainAct, "Error al procesar la imagen", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(mainAct, "Error al procesar la imagen", Toast.LENGTH_SHORT)
+                            .show()
                     }
                     Log.e("UploadError", "Error al subir la imagen: ${e.message}")
                 }

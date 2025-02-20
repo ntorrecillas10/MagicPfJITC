@@ -65,11 +65,16 @@ class CartaSolicitadaAdapter(
         val carta = displayedList[position]
         val context = holder.itemView.context
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(carritoActivity, android.Manifest.permission.POST_NOTIFICATIONS)
+            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(carritoActivity, arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 101)
+                ActivityCompat.requestPermissions(
+                    carritoActivity,
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    101
+                )
             }
         }
+
 
 
         with(holder.binding) {
