@@ -252,8 +252,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
 
             builder.setPositiveButton("Si") { dialog, _ ->
                 evento.participantes.add(auth.currentUser?.email.toString())
-                refBD.child("tienda").child("eventos").child(evento.id).child("participantes")
-                    .setValue(evento.participantes)
+                refBD.child("tienda").child("eventos").child(evento.id).child("participantes").setValue(evento.participantes)
                 Toast.makeText(
                     recyclerPadre.context,
                     "Se te ha añadido al evento " + evento.nombre,
@@ -273,7 +272,12 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
     private fun mostrarBottomSheetDialogParticipantes(evento: Evento) {
         val builder = AlertDialog.Builder(recyclerPadre.context)
             builder.setTitle("Participantes de " + evento.nombre)
-            builder.setMessage(evento.participantes.toString())
+            if (evento.participantes.size == 0) {
+                builder.setMessage("El evento no tiene participantes")
+            } else{
+                builder.setMessage(evento.participantes.toString())
+
+            }
 
             builder.setPositiveButton("Vale") { dialog, _ ->
                 dialog.dismiss()
