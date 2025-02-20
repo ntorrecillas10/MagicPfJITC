@@ -1,3 +1,31 @@
 <resources>
     <string name="app_name">MagicPfJITC</string>
+    <string name="precio_carta">Precio carta</string>
+    <string name="nombre_carta">Nombre carta</string>
+    <string name="descripcion_carta">Descripcion carta</string>
+    <string name="aforo_m_ximo">Aforo máximo</string>
+    <string name="fecha_evento">Fecha Evento</string>
+    <string name="carrito_de_cartas">Carrito de cartas</string>
+    <string name="a_adir_carta">AÑADIR CARTA</string>
+    <string name="nombre">Nombre</string>
+    <string name="precio">Precio</string>
+    <string name="descripci_n">Descripción</string>
+    <string name="a_adir">Añadir</string>
+    <string name="crear_cuenta">Crear cuenta</string>
+    <string name="correo_electr_nico">Correo electrónico</string>
+    <string name="nombre_de_usuario">Nombre de usuario</string>
+    <string name="contrase_a">Contraseña</string>
+    <string name="repita_su_contrase_a">Repita su contraseña</string>
+    <string name="a_adir_evento">AÑADIR EVENTO</string>
+    <string name="buscar">Buscar</string>
+    <string name="eventos">EVENTOS</string>
+    <string name="ha_olvidado_su_contrase_a">¿Ha olvidado su contraseña?</string>
+    <string name="entrar">Entrar</string>
+    <string name="mis_cartas">Mis cartas</string>
+    <string name="editar_carta">EDITAR CARTA</string>
+    <string name="nombre_comprador">nombre comprador</string>
+    <string name="editar_evento">EDITAR EVENTO</string>
+    <string name="carta">CARTA</string>
+    <string name="_10dolares">10$</string>
+    <string name="evento">EVENTO</string>
 </resources>

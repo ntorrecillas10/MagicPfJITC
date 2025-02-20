@@ -21,15 +21,16 @@
         app:layout_constraintBottom_toBottomOf="@id/textoSuperior"
         app:layout_constraintEnd_toStartOf="@id/textoSuperior"
 
-        app:layout_constraintHorizontal_weight="1"/>
+        app:layout_constraintHorizontal_weight="1"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/textoSuperior"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="AÑADIR CARTA"
+        android:text="@string/a_adir_carta"
         android:textColor="@color/white"
-        android:textSize="20dp"
+        android:textSize="@dimen/_20sp"
         android:gravity="center"
 
         app:layout_constraintTop_toTopOf="parent"
@@ -67,6 +68,7 @@
         app:layout_constraintBottom_toTopOf="@id/tipo_carta"
 
         app:layout_constraintVertical_weight="6"
+        tools:ignore="ContentDescription"
         />
 
     <Spinner
@@ -83,7 +85,9 @@
         android:id="@+id/nombre_carta"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:hint="Nombre"
+        android:hint="@string/nombre"
+        android:singleLine="true"
+        android:inputType="text"
 
         app:layout_constraintTop_toBottomOf="@id/tipo_carta"
         app:layout_constraintEnd_toEndOf="parent"
@@ -91,39 +95,45 @@
         app:layout_constraintBottom_toTopOf="@id/precio_carta"
 
         app:layout_constraintVertical_weight="1"
+        tools:ignore="Autofill,LabelFor"
         />
 
     <EditText
         android:id="@+id/precio_carta"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:hint="Precio"
+        android:inputType="numberDecimal"
+        android:singleLine="true"
+        android:hint="@string/precio"
 
         app:layout_constraintTop_toBottomOf="@id/nombre_carta"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/descripcion_carta"
 
-        app:layout_constraintVertical_weight="1"/>
+        app:layout_constraintVertical_weight="1"
+        tools:ignore="Autofill" />
 
     <EditText
         android:id="@+id/descripcion_carta"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:hint="Descripción"
+        android:hint="@string/descripci_n"
+        android:inputType="text"
 
         app:layout_constraintTop_toBottomOf="@id/precio_carta"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/add_carta"
 
-        app:layout_constraintVertical_weight="1"/>
+        app:layout_constraintVertical_weight="1"
+        tools:ignore="Autofill"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/add_carta"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="Añadir"
+        android:text="@string/a_adir"
         android:layout_marginBottom="10dp"
         android:background="@drawable/fondo_boton_rojo_cian"
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:id="@+id/main"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -18,14 +19,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/nombre_evento"
-        app:layout_constraintVertical_weight="4"/>
+        app:layout_constraintVertical_weight="4"
+        tools:ignore="ContentDescription"/>
 
     <TextView
         android:id="@+id/nombre_evento"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="EVENTO"
-        android:textSize="25dp"
+        android:text="@string/evento"
+        android:textSize="@dimen/_25sp"
         android:textColor="@color/white"
         android:gravity="center"
         android:layout_marginHorizontal="4dp"
@@ -43,8 +45,8 @@
         android:id="@+id/precio_evento"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="10$"
-        android:textSize="20dp"
+        android:text="@string/_10dolares"
+        android:textSize="@dimen/_20sp"
         android:shadowColor="@color/black"
         android:shadowDx="2"
         android:shadowDy="2"

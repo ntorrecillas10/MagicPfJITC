@@ -5,16 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.magicpfjitc.CartaAdapter.CartaViewHolder
-import com.example.magicpfjitc.databinding.DialogCartaBinding
 import com.example.magicpfjitc.databinding.DialogEventoBinding
 import com.example.magicpfjitc.databinding.DialogEventoEditarBinding
-import com.example.magicpfjitc.databinding.ItemCartaBinding
 import com.example.magicpfjitc.databinding.ItemEventoBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -56,9 +52,13 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
     }
 
     override fun onBindViewHolder(holder: EventoAdapter.EventoViewHolder, position: Int) {
-        evento = displayedList[position]
+        val evento = displayedList[position]
         holder.binding.nombreEvento.text = evento.nombre
-        holder.binding.precioEvento.text = evento.precio.toString()
+        holder.binding.precioEvento.text = when(evento.precio){
+            0.0 -> "Gratis"
+            100.0 -> "Privado"
+            else -> evento.precio.toString() + " euros"
+        }
 
         miProyectoId = "67a65b4b001c887a9b81" // ID del proyecto de Appwrite
         miBucketId = "67a783770038c6aa0389" // ID del bucket de Appwrite
@@ -81,7 +81,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
                 DialogEventoBinding.inflate(LayoutInflater.from(holder.itemView.context))
             auth = FirebaseAuth.getInstance()
 
-            Log.d("CartaAdapter", auth.currentUser.toString())
+            Log.d("EventoAdapter", auth.currentUser.toString())
             val currentUserId = auth.currentUser?.uid
 
             if (currentUserId != null) {
@@ -102,7 +102,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
 
                         override fun onCancelled(error: DatabaseError) {
                             Log.e(
-                                "CartaAdapter",
+                                "EventoAdapter",
                                 "Error al obtener el atributo admin",
                                 error.toException()
                             )
@@ -110,12 +110,16 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
                     })
             }
 
-            // Rellenar el contenido del diálogo con la información de la carta
+            // Rellenar el contenido del diálogo con la información de la evento
             dialogBinding.mostrarNombreEvento.text = evento.nombre
             dialogBinding.mostrarPrecioEvento.text = "Precio: ${evento.precio}"
             dialogBinding.mostrarDescripcionEvento.text = evento.descripcion
             dialogBinding.mostrarAforoEvento.text = "Aforo máximo: ${evento.aforo}"
             dialogBinding.mostrarFechaEvento.text = "Fecha: ${evento.fecha}"
+
+            if (evento.precio == 100.0){
+                dialogBinding.entrarBtn.visibility = View.GONE
+            }
 
             Glide.with(holder.itemView.context)
                 .load(evento.imagen)
@@ -135,12 +139,9 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
                 mostrarBottomSheetDialogEventos()
             }
             dialogBinding.editBtn.setOnClickListener {
-
-
                 //Abrimos el dialog
                 val dialogBinding2 =
                     DialogEventoEditarBinding.inflate(LayoutInflater.from(holder.itemView.context))
-
 
                 // Crear el AlertDialog y establecer el layout inflado con el Binding
                 val builder = android.app.AlertDialog.Builder(holder.itemView.context)
@@ -193,18 +194,18 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
                             } else {
                                 // Mantener la imagen original en Firebase
                                 updatedEvento.imagen = evento.imagen
-                                refBD.child("cartas").child(evento.id).setValue(updatedEvento)
+                                refBD.child("eventos").child(evento.id).setValue(updatedEvento)
                                     .addOnSuccessListener {
                                         Toast.makeText(
                                             eventsAct,
-                                            "Carta actualizada con éxito",
+                                            "Evento actualizado con éxito",
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
                                     .addOnFailureListener {
                                         Toast.makeText(
                                             eventsAct,
-                                            "Error al actualizar carta",
+                                            "Error al actualizar evento",
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -220,12 +221,6 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
                         dialog.dismiss()
                     }
                 }
-
-
-
-
-
-
             }
             dialogBinding.verParticipantesBtn.setOnClickListener {
                 mostrarBottomSheetDialogParticipantes()
@@ -316,10 +311,10 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
                             avatarUrl,
                         )
 
-                        refBD.child("carta").child(evento.id).setValue(updatedEvento)
+                        refBD.child("evento").child(evento.id).setValue(updatedEvento)
 
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(eventsAct, "Carta actualizada con éxito", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(eventsAct, "Evento actualizado con éxito", Toast.LENGTH_SHORT).show()
                         }
                     } else {
                         withContext(Dispatchers.Main) {

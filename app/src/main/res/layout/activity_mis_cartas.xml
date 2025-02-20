@@ -23,7 +23,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/textoSuperior"
 
-            app:layout_constraintVertical_weight="1"/>
+            app:layout_constraintVertical_weight="1"
+            tools:ignore="ContentDescription"/>
 
         <ImageButton
             android:id="@+id/fragment"
@@ -37,17 +38,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/textoSuperior"
             app:layout_constraintEnd_toStartOf="@id/textoSuperior"
-            app:layout_constraintHorizontal_weight="3"/>
+            app:layout_constraintHorizontal_weight="3"
+            tools:ignore="ContentDescription"/>
 
         <TextView
             android:id="@+id/textoSuperior"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginHorizontal="10dp"
-            android:text="Mis cartas"
+            android:text="@string/mis_cartas"
             android:gravity="center"
             android:textColor="@color/black"
-            android:textSize="25dp"
+            android:textSize="@dimen/_25sp"
             android:paddingHorizontal="20dp"
 
             app:layout_constraintBottom_toTopOf="@id/recycler_cartas"
@@ -70,7 +72,8 @@
             app:layout_constraintStart_toEndOf="@id/textoSuperior"
             app:layout_constraintTop_toTopOf="@id/textoSuperior"
 
-            app:layout_constraintHorizontal_weight="2"/>
+            app:layout_constraintHorizontal_weight="2"
+            tools:ignore="ContentDescription"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_cartas"

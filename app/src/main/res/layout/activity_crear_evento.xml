@@ -23,15 +23,16 @@
         app:layout_constraintBottom_toBottomOf="@id/textoSuperior"
         app:layout_constraintEnd_toStartOf="@id/textoSuperior"
 
-        app:layout_constraintHorizontal_weight="1"/>
+        app:layout_constraintHorizontal_weight="1"
+        tools:ignore="ContentDescription"/>
 
     <TextView
         android:id="@+id/textoSuperior"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="AÑADIR EVENTO"
+        android:text="@string/a_adir_evento"
         android:textColor="@color/white"
-        android:textSize="20dp"
+        android:textSize="@dimen/_20sp"
         android:gravity="center"
 
         app:layout_constraintTop_toTopOf="parent"
@@ -69,6 +70,7 @@
         app:layout_constraintBottom_toTopOf="@id/tipo_evento"
 
         app:layout_constraintVertical_weight="6"
+        tools:ignore="ContentDescription"
         />
 
     <Spinner
@@ -85,7 +87,9 @@
         android:id="@+id/nombre_evento"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:hint="Nombre"
+        android:hint="@string/nombre"
+        android:singleLine="true"
+        android:inputType="text"
 
         app:layout_constraintTop_toBottomOf="@id/tipo_evento"
         app:layout_constraintEnd_toEndOf="parent"
@@ -93,65 +97,76 @@
         app:layout_constraintBottom_toTopOf="@id/precio_evento"
 
         app:layout_constraintVertical_weight="1"
-        />
+        tools:ignore="Autofill" />
 
     <EditText
         android:id="@+id/precio_evento"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:hint="Precio"
+        android:inputType="numberDecimal"
+        android:hint="@string/precio"
+        android:singleLine="true"
 
         app:layout_constraintTop_toBottomOf="@id/nombre_evento"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/descripcion_evento"
 
-        app:layout_constraintVertical_weight="1"/>
+        app:layout_constraintVertical_weight="1"
+        tools:ignore="Autofill" />
 
     <EditText
         android:id="@+id/descripcion_evento"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:hint="Descripción"
+        android:hint="@string/descripci_n"
+        android:inputType="text"
 
         app:layout_constraintTop_toBottomOf="@id/precio_evento"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/aforo_evento"
 
-        app:layout_constraintVertical_weight="1"/>
+        app:layout_constraintVertical_weight="1"
+        tools:ignore="Autofill" />
 
     <EditText
         android:id="@+id/aforo_evento"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:hint="Aforo máximo"
+        android:inputType="number"
+        android:hint="@string/aforo_m_ximo"
+        android:singleLine="true"
 
         app:layout_constraintTop_toBottomOf="@id/descripcion_evento"
         app:layout_constraintEnd_toStartOf="@id/fecha_evento"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/add_evento"
 
-        app:layout_constraintVertical_weight="1"/>
+        app:layout_constraintVertical_weight="1"
+        tools:ignore="Autofill" />
 
     <EditText
         android:id="@+id/fecha_evento"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:hint="Fecha"
+        android:inputType="date"
+        android:hint="@string/fecha_evento"
+        android:singleLine="true"
 
         app:layout_constraintTop_toBottomOf="@id/descripcion_evento"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/aforo_evento"
         app:layout_constraintBottom_toTopOf="@id/add_evento"
 
-        app:layout_constraintVertical_weight="1"/>
+        app:layout_constraintVertical_weight="1"
+        tools:ignore="Autofill" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/add_evento"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="Añadir"
+        android:text="@string/a_adir"
         android:layout_marginBottom="10dp"
         android:background="@drawable/fondo_boton_rojo_cian"
 

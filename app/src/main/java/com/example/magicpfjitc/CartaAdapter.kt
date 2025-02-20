@@ -60,7 +60,8 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onBindViewHolder(holder: CartaViewHolder, position: Int) {
-        carta = displayedList[position]
+        val carta = displayedList[position]
+        Log.d("CartaAdapter", "Carta: $carta")
         holder.binding.nombreCarta.text = carta.nombre
         holder.binding.precioCarta.text = carta.precio.toString()
         holder.binding.main.background = when (carta.tipo) {
@@ -88,6 +89,8 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
         initializeUI()
 
         holder.binding.main.setOnClickListener {
+            Log.d("CartaAdapter", "Carta: $carta")
+
             // Crear el Binding para el diálogo
             val dialogBinding =
                 DialogCartaBinding.inflate(LayoutInflater.from(holder.itemView.context))

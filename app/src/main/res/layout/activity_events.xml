@@ -23,7 +23,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/textoSuperior"
 
-            app:layout_constraintVertical_weight="1"/>
+            app:layout_constraintVertical_weight="1"
+            tools:ignore="ContentDescription"/>
 
         <ImageButton
             android:id="@+id/fragment"
@@ -37,15 +38,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/textoSuperior"
             app:layout_constraintEnd_toStartOf="@id/textoSuperior"
-            app:layout_constraintHorizontal_weight="3"/>
+            app:layout_constraintHorizontal_weight="3"
+            tools:ignore="ContentDescription"/>
 
         <EditText
             android:id="@+id/textoSuperior"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:hint="Buscar"
+            android:hint="@string/buscar"
             android:paddingHorizontal="20dp"
             android:layout_marginHorizontal="10dp"
+            android:singleLine="true"
+            android:inputType="text"
 
             app:layout_constraintBottom_toTopOf="@id/spinner"
             app:layout_constraintEnd_toStartOf="@id/btn_buscar"
@@ -53,7 +57,8 @@
             app:layout_constraintTop_toBottomOf="@id/logo_movimiento"
 
             app:layout_constraintVertical_weight="2"
-            app:layout_constraintHorizontal_weight="15"/>
+            app:layout_constraintHorizontal_weight="15"
+            tools:ignore="Autofill" />
 
         <ImageButton
             android:id="@+id/btn_buscar"
@@ -68,14 +73,15 @@
             app:layout_constraintStart_toEndOf="@id/textoSuperior"
             app:layout_constraintTop_toTopOf="@id/textoSuperior"
 
-            app:layout_constraintHorizontal_weight="2"/>
+            app:layout_constraintHorizontal_weight="2"
+            tools:ignore="ContentDescription" />
 
         <Spinner
             android:id="@+id/spinner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="EVENTOS"
-            android:textSize="20dp"
+            android:text="@string/eventos"
+            android:textSize="@dimen/_20sp"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:layout_marginStart="20dp"
