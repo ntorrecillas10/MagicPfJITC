@@ -107,7 +107,8 @@ class CrearEventoActivity : AppCompatActivity() {
                     if (campos && imagen) {
 
                         //key única para el
-                        identificador = refBD.child("eventos").push().key!!
+                        identificador = refBD
+                            .child("tienda").child("eventos").push().key!!
 
                         Log.d("ID", identificador)
                         Log.d("Date", evento_nuevo.fecha_creacion)
@@ -158,7 +159,8 @@ class CrearEventoActivity : AppCompatActivity() {
                                 Log.d("evento", evento_nuevo.toString())
 
                                 //subimos los datos a firebase
-                                refBD.child("eventos").child(identificador).setValue(evento_nuevo)
+                                refBD
+                                    .child("tienda").child("eventos").child(identificador).setValue(evento_nuevo)
                                     .addOnSuccessListener {
                                         //volvemos a la pantalla de inicio
                                         val intent = Intent(contexto, EventsActivity::class.java)
@@ -222,7 +224,8 @@ class CrearEventoActivity : AppCompatActivity() {
     ) {
         val lista_eventos = mutableListOf<Evento>()
 
-        db_ref.child("eventos")
+        db_ref
+            .child("tienda").child("eventos")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     lista_eventos.clear() // Limpiamos la lista antes de agregar los nuevos datos

@@ -145,7 +145,8 @@ class CrearCartaActivity : AppCompatActivity() {
                     if (campos && imagen) {
 
                         //key única para el
-                        identificador = refBD.child("cartas").push().key!!
+                        identificador = refBD
+                            .child("tienda").child("cartas").push().key!!
 
                         Log.d("ID", identificador)
                         Log.d("Date", carta_nueva.fecha_carta)
@@ -196,7 +197,8 @@ class CrearCartaActivity : AppCompatActivity() {
                                 Log.d("carta", carta_nueva.toString())
 
                                 //subimos los datos a firebase
-                                refBD.child("cartas").child(identificador).setValue(carta_nueva)
+                                refBD
+                                    .child("tienda").child("cartas").child(identificador).setValue(carta_nueva)
                                     .addOnSuccessListener {
                                         //volvemos a la pantalla de inicio
                                         val intent = Intent(contexto, MainActivity::class.java)
@@ -256,7 +258,8 @@ class CrearCartaActivity : AppCompatActivity() {
     fun obtenerListaCartas(db_ref: DatabaseReference, contexto: Context, callback: (List<Carta>) -> Unit) {
         val lista_cartas = mutableListOf<Carta>()
 
-        db_ref.child("cartas")
+        db_ref
+            .child("tienda").child("cartas")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     lista_cartas.clear() // Limpiamos la lista antes de agregar los nuevos datos

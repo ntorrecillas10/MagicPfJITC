@@ -86,6 +86,7 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
 
             if (currentUserId != null) {
                 FirebaseDatabase.getInstance().reference
+                    .child("tienda")
                     .child("usuarios")
                     .child(currentUserId)
                     .child("admin")
@@ -194,7 +195,8 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
                             } else {
                                 // Mantener la imagen original en Firebase
                                 updatedEvento.imagen = evento.imagen
-                                refBD.child("eventos").child(evento.id).setValue(updatedEvento)
+                                refBD
+                                    .child("tienda").child("eventos").child(evento.id).setValue(updatedEvento)
                                     .addOnSuccessListener {
                                         Toast.makeText(
                                             eventsAct,
@@ -251,7 +253,8 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
 
             builder.setPositiveButton("Si") { dialog, _ ->
                 evento.participantes.add(auth.currentUser?.email.toString())
-                refBD.child("eventos").child(evento.id).child("participantes")
+                refBD
+                    .child("tienda").child("eventos").child(evento.id).child("participantes")
                     .setValue(evento.participantes)
                 Toast.makeText(
                     recyclerPadre.context,
@@ -311,7 +314,8 @@ class  EventoAdapter(originalList: List<Evento>, private val recyclerPadre: Recy
                             avatarUrl,
                         )
 
-                        refBD.child("evento").child(evento.id).setValue(updatedEvento)
+                        refBD
+                            .child("tienda").child("evento").child(evento.id).setValue(updatedEvento)
 
                         withContext(Dispatchers.Main) {
                             Toast.makeText(eventsAct, "Evento actualizado con éxito", Toast.LENGTH_SHORT).show()

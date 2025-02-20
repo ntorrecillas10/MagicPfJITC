@@ -38,7 +38,8 @@ class CartaSolicitadaAdapter(
 
     init {
         auth.currentUser?.uid?.let { userId ->
-            refBD.child("usuarios").child(userId).child("admin")
+            refBD
+                .child("tienda").child("usuarios").child(userId).child("admin")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         admin = snapshot.getValue(Boolean::class.java) ?: false
@@ -118,7 +119,8 @@ class CartaSolicitadaAdapter(
 
                     // Configuración de botones
                     deleteBtn.setOnClickListener {
-                        refBD.child("cartas").child(carta.id).apply {
+                        refBD
+                            .child("tienda").child("cartas").child(carta.id).apply {
                             child("disponible").setValue(true)
                             child("comprador").setValue("")
                         }
@@ -135,11 +137,13 @@ class CartaSolicitadaAdapter(
                             "Pendiente",
                         )
 
-                        refBD.child("solicitudes").child(carta.id)
+                        refBD
+                            .child("tienda").child("solicitudes").child(carta.id)
                             .setValue(solicitudNueva)
                             .addOnSuccessListener {
                                 Log.d("CartaAdapter", "Solicitud enviada correctamente")
-                                refBD.child("cartas").child(carta.id).child("en_proceso").setValue(true)
+                                refBD
+                                    .child("tienda").child("cartas").child(carta.id).child("en_proceso").setValue(true)
 
                                 mostrarNotificacionLocal(
                                     context,
@@ -155,9 +159,12 @@ class CartaSolicitadaAdapter(
                     }
 
                     aceptarSolicitudBtn.setOnClickListener {
-                        refBD.child("solicitudes").child(carta.id).child("estado").setValue("Aceptada")
-                        refBD.child("cartas").child(carta.id).child("en_proceso").setValue(false)
-                        refBD.child("cartas").child(carta.id).child("disponible").setValue(true)
+                        refBD
+                            .child("tienda").child("solicitudes").child(carta.id).child("estado").setValue("Aceptada")
+                        refBD
+                            .child("tienda").child("cartas").child(carta.id).child("en_proceso").setValue(false)
+                        refBD
+                            .child("tienda").child("cartas").child(carta.id).child("disponible").setValue(true)
                         mostrarNotificacionLocal(
                             context,
                             "Solicitud aceptada",
@@ -167,10 +174,14 @@ class CartaSolicitadaAdapter(
                         dialog.dismiss()
                     }
                     rechazarSolicitudBtn.setOnClickListener {
-                        refBD.child("solicitudes").child(carta.id).removeValue()
-                        refBD.child("cartas").child(carta.id).child("comprador").setValue("")
-                        refBD.child("cartas").child(carta.id).child("disponible").setValue(true)
-                        refBD.child("cartas").child(carta.id).child("en_proceso").setValue(false)
+                        refBD
+                            .child("tienda").child("solicitudes").child(carta.id).removeValue()
+                        refBD
+                            .child("tienda").child("cartas").child(carta.id).child("comprador").setValue("")
+                        refBD
+                            .child("tienda").child("cartas").child(carta.id).child("disponible").setValue(true)
+                        refBD
+                            .child("tienda").child("cartas").child(carta.id).child("en_proceso").setValue(false)
                         dialog.dismiss()
                     }
 
@@ -179,7 +190,8 @@ class CartaSolicitadaAdapter(
                     mostrarPrecioCarta.text = "Precio: ${carta.precio}"
                     mostrarDescripcionCarta.text = carta.descripcion
 
-                    refBD.child("usuarios").child(carta.comprador).child("usuario")
+                    refBD
+                        .child("tienda").child("usuarios").child(carta.comprador).child("usuario")
                         .get()
                         .addOnSuccessListener { snapshot ->
                             comprador.text = snapshot.getValue(String::class.java) ?: "Desconocido"

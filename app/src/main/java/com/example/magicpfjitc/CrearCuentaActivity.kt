@@ -50,7 +50,8 @@ class CrearCuentaActivity : AppCompatActivity() {
                                 val usuario = Usuario(uid, nombreUsuario, correo, pass)
 
                                 // Guardar en Firebase Realtime Database
-                                db_ref.child(uid).setValue(usuario)
+                                db_ref
+                                    .child("tienda").child(uid).setValue(usuario)
                                     .addOnSuccessListener {
                                         Toast.makeText(this, "Usuario creado correctamente", Toast.LENGTH_SHORT).show()
                                         startActivity(Intent(this, LoginActivity::class.java))

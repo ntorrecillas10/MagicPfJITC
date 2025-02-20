@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         if (currentUserId != null) {
             FirebaseDatabase.getInstance().reference
+                .child("tienda")
                 .child("usuarios")
                 .child(currentUserId)
                 .child("admin")
@@ -90,7 +91,8 @@ class MainActivity : AppCompatActivity() {
                     }
                 })
         }
-        FirebaseDatabase.getInstance().reference.child("cartas")
+        FirebaseDatabase.getInstance().reference
+            .child("tienda").child("cartas")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     cartasList.clear()  // Limpiar la lista antes de añadir los nuevos datos

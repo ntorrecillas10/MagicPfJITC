@@ -57,6 +57,8 @@ class EventsActivity : AppCompatActivity() {
 
         if (currentUserId != null) {
             FirebaseDatabase.getInstance().reference
+                .child("tienda")
+                .child("tienda")
                 .child("usuarios")
                 .child(currentUserId)
                 .child("admin")
@@ -80,12 +82,13 @@ class EventsActivity : AppCompatActivity() {
                     }
                 })
         }
-        FirebaseDatabase.getInstance().reference.child("eventos")
+        FirebaseDatabase.getInstance().reference
+            .child("tienda").child("eventos")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     eventosList.clear()  // Limpiar la lista antes de añadir los nuevos datos
-                    for (cartaSnapshot in snapshot.children) {
-                        val evento = cartaSnapshot.getValue(Evento::class.java)
+                    for (Snapshot in snapshot.children) {
+                        val evento = Snapshot.getValue(Evento::class.java)
                         if (evento?.aforo != evento?.participantes?.size) {
                             evento?.let { eventosList.add(it) }
                         }

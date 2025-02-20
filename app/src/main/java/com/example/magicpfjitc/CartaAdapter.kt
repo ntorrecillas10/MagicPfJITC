@@ -113,6 +113,7 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
 
             if (currentUserId != null) {
                 FirebaseDatabase.getInstance().reference
+                    .child("tienda")
                     .child("usuarios")
                     .child(currentUserId)
                     .child("admin")
@@ -138,7 +139,8 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
             }
 
             dialogBinding.buyBtn.setOnClickListener {
-                val userCartRef = refBD.child("cartas")
+                val userCartRef = refBD
+                    .child("tienda").child("cartas")
                 val currentUserId = auth.currentUser?.uid ?: return@setOnClickListener
                 val context = holder.itemView.context // Obtener el contexto para mostrar el Toast
 
@@ -156,9 +158,11 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
                             }
 
                             // Se establece la disponibilidad de la carta en false y se guarda el ID del comprador
-                            refBD.child("cartas").child(carta.id).child("disponible")
+                            refBD
+                                .child("tienda").child("cartas").child(carta.id).child("disponible")
                                 .setValue(false)
-                            refBD.child("cartas").child(carta.id).child("comprador")
+                            refBD
+                                .child("tienda").child("cartas").child(carta.id).child("comprador")
                                 .setValue(currentUserId)
 
                             Toast.makeText(context, "Carta añadida al carrito", Toast.LENGTH_SHORT)
@@ -279,7 +283,8 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
                             } else {
                                 // Mantener la imagen original en Firebase
                                 updatedCarta.imagenUrl = carta.imagenUrl
-                                refBD.child("cartas").child(carta.id).setValue(updatedCarta)
+                                refBD
+                                    .child("tienda").child("cartas").child(carta.id).setValue(updatedCarta)
                                     .addOnSuccessListener {
                                         Toast.makeText(mainAct, "Carta actualizada con éxito", Toast.LENGTH_SHORT).show()
                                     }
@@ -357,7 +362,8 @@ class CartaAdapter(originalList: List<Carta>, private val recyclerPadre: Recycle
                             carta.descripcion,
                         )
 
-                        refBD.child("carta").child(carta.id).setValue(updatedCarta)
+                        refBD
+                            .child("tienda").child("carta").child(carta.id).setValue(updatedCarta)
 
                         withContext(Dispatchers.Main) {
                             Toast.makeText(mainAct, "Carta actualizada con éxito", Toast.LENGTH_SHORT).show()

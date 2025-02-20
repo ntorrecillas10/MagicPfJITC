@@ -50,6 +50,7 @@ class CarritoCartasActivity : AppCompatActivity() {
 
         if (currentUserId != null) {
             FirebaseDatabase.getInstance().reference
+                .child("tienda")
                 .child("usuarios")
                 .child(currentUserId)
                 .child("admin")
@@ -59,7 +60,8 @@ class CarritoCartasActivity : AppCompatActivity() {
                         if (admin) {
                             binding.btn4.visibility = View.GONE
 
-                            FirebaseDatabase.getInstance().reference.child("cartas")
+                            FirebaseDatabase.getInstance().reference
+                                .child("tienda").child("cartas")
                                 .addValueEventListener(object : ValueEventListener {
                                     override fun onDataChange(snapshot: DataSnapshot) {
                                         cartasList.clear()  // Limpiar la lista antes de añadir los nuevos datos
@@ -85,7 +87,8 @@ class CarritoCartasActivity : AppCompatActivity() {
                             startActivity(intent)
                         }
 
-                            FirebaseDatabase.getInstance().reference.child("cartas")
+                            FirebaseDatabase.getInstance().reference
+                                .child("tienda").child("cartas")
                                 .addValueEventListener(object : ValueEventListener {
                                     override fun onDataChange(snapshot: DataSnapshot) {
                                         cartasList.clear()  // Limpiar la lista antes de añadir los nuevos datos
